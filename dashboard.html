@@ -676,27 +676,58 @@
 
 <script>
 // ========== GAS 接続設定 ==========
-// ▼ GASデプロイ後に発行されたURLをここに貼り付けてください
+// ▼ GASデプロイ後にURLをここに貼り付けると自動でスプレッドシートからデータ取得します
 const GAS_URL = 'YOUR_GAS_URL_HERE';
 
-// ========== DATA (動的ロード) ==========
-let ALL = [];
+// ========== 初期データ（ハードコード）==========
+// GAS未接続時はこのデータを使用。接続後はスプレッドシートのデータで上書きされます。
+const FALLBACK_DATA = [
+  {month:'2024/05',cost:19216,  appt:1, apptCpa:19216, meet:1, meetCpa:19216, exp:1, expCpa:19216, cont:1, contCpa:19216, yoyC:null, yoyCpa:null},
+  {month:'2024/06',cost:40513,  appt:0, apptCpa:null,  meet:0, meetCpa:null,  exp:0, expCpa:null,  cont:0, contCpa:null,  yoyC:null, yoyCpa:null},
+  {month:'2024/07',cost:54873,  appt:1, apptCpa:54873, meet:1, meetCpa:54873, exp:1, expCpa:54873, cont:1, contCpa:54873, yoyC:null, yoyCpa:null},
+  {month:'2024/08',cost:61692,  appt:2, apptCpa:30846, meet:2, meetCpa:30846, exp:2, expCpa:30846, cont:2, contCpa:30846, yoyC:null, yoyCpa:null},
+  {month:'2024/09',cost:66618,  appt:1, apptCpa:66618, meet:1, meetCpa:66618, exp:1, expCpa:66618, cont:1, contCpa:66618, yoyC:null, yoyCpa:null},
+  {month:'2024/10',cost:72559,  appt:3, apptCpa:24186, meet:3, meetCpa:24186, exp:3, expCpa:24186, cont:3, contCpa:24186, yoyC:null, yoyCpa:null},
+  {month:'2024/11',cost:108615, appt:5, apptCpa:21723, meet:5, meetCpa:21723, exp:5, expCpa:21723, cont:5, contCpa:21723, yoyC:null, yoyCpa:null},
+  {month:'2024/12',cost:92780,  appt:4, apptCpa:23195, meet:4, meetCpa:23195, exp:4, expCpa:23195, cont:4, contCpa:23195, yoyC:null, yoyCpa:null},
+  {month:'2025/01',cost:93335,  appt:5, apptCpa:18667, meet:5, meetCpa:18667, exp:5, expCpa:18667, cont:5, contCpa:18667, yoyC:null, yoyCpa:null},
+  {month:'2025/02',cost:99475,  appt:4, apptCpa:24869, meet:4, meetCpa:24869, exp:4, expCpa:24869, cont:4, contCpa:24869, yoyC:null, yoyCpa:null},
+  {month:'2025/03',cost:98409,  appt:7, apptCpa:14058, meet:7, meetCpa:14058, exp:6, expCpa:16402, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/04',cost:64672,  appt:6, apptCpa:10779, meet:9, meetCpa:10779, exp:6, expCpa:10779, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/05',cost:85107,  appt:1, apptCpa:85107, meet:1, meetCpa:85107, exp:1, expCpa:85107, cont:1, contCpa:85107, yoyC:0,    yoyCpa:65891},
+  {month:'2025/06',cost:53098,  appt:3, apptCpa:17699, meet:3, meetCpa:17699, exp:3, expCpa:17699, cont:3, contCpa:17699, yoyC:null, yoyCpa:null},
+  {month:'2025/07',cost:81776,  appt:5, apptCpa:16355, meet:4, meetCpa:20444, exp:3, expCpa:27259, cont:2, contCpa:null,  yoyC:null, yoyCpa:27614},
+  {month:'2025/08',cost:83795,  appt:7, apptCpa:11971, meet:7, meetCpa:11971, exp:2, expCpa:41898, cont:0, contCpa:11052, yoyC:null, yoyCpa:null},
+  {month:'2025/09',cost:114052, appt:9, apptCpa:12672, meet:7, meetCpa:16293, exp:1, expCpa:114052,cont:0, contCpa:47434, yoyC:null, yoyCpa:null},
+  {month:'2025/10',cost:126404, appt:10,apptCpa:12640, meet:9, meetCpa:14045, exp:5, expCpa:25281, cont:2, contCpa:1094,  yoyC:null, yoyCpa:null},
+  {month:'2025/11',cost:120186, appt:9, apptCpa:13354, meet:9, meetCpa:13354, exp:6, expCpa:20031, cont:7, contCpa:17169, yoyC:2,    yoyCpa:-4554},
+  {month:'2025/12',cost:193622, appt:15,apptCpa:12908, meet:13,meetCpa:14894, exp:10,expCpa:19362, cont:10,contCpa:19362, yoyC:6,    yoyCpa:-3833},
+  {month:'2026/01',cost:96481,  appt:13,apptCpa:7422,  meet:11,meetCpa:8771,  exp:6, expCpa:16080, cont:6, contCpa:16080, yoyC:1,    yoyCpa:-2587},
+  {month:'2026/02',cost:144862, appt:8, apptCpa:18108, meet:5, meetCpa:28972, exp:3, expCpa:48287, cont:3, contCpa:48287, yoyC:-1,   yoyCpa:23419},
+];
+
+let ALL = [...FALLBACK_DATA]; // 初期表示はハードコードデータを使用
 
 async function loadFromGAS() {
+  // GAS URLが未設定の場合はスキップ（ハードコードデータをそのまま使用）
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
+    document.getElementById('last-updated').textContent = 'ローカルデータ表示中';
+    return true;
+  }
   showLoading(true);
   try {
     const res = await fetch(GAS_URL);
     if (!res.ok) throw new Error('HTTPエラー: ' + res.status);
     const json = await res.json();
     if (json.error) throw new Error(json.error);
-    ALL = json.data;
+    ALL = json.data; // スプレッドシートのデータで上書き
     showLoading(false);
     showLastUpdated(json.updated);
     return true;
   } catch(err) {
     showLoading(false);
-    showError('データ取得エラー: ' + err.message);
-    return false;
+    showError('GAS接続エラー（ローカルデータで表示中）: ' + err.message);
+    return true; // エラーでもハードコードデータで続行
   }
 }
 
