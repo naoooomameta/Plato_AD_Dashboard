@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -183,12 +182,149 @@
 
   @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
   .card,.card-hero,.chart-wrap,.table-wrap,.settings-group { animation:fadeUp 0.3s ease both; }
+
+  /* Loading / Error banners */
+  #loading-banner {
+    position:fixed; inset:0; background:rgba(244,245,247,0.92); z-index:1000;
+    display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  }
+  .spinner {
+    width:40px; height:40px; border:3px solid #e5e7eb;
+    border-top-color:#7c3aed; border-radius:50%; animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #loading-banner p { font-size:14px; color:#6b7280; font-weight:500; }
+  #error-banner {
+    display:none; position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background:#fee2e2; color:#dc2626; border:1px solid #fca5a5;
+    padding:10px 20px; border-radius:10px; font-size:13px; z-index:1001;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  }
+  #last-updated { font-size:11px; color:#9ca3af; }
+  .reload-btn { background:none; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.8); padding:5px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-family:'Noto Sans JP',sans-serif; margin-top:8px; transition:all 0.15s; }
+  .reload-btn:hover { background:rgba(255,255,255,0.15); color:white; }
+
+  /* ===== MOBILE HEADER ===== */
+  .mobile-header {
+    display:none; position:fixed; top:0; left:0; right:0; z-index:200;
+    background:linear-gradient(90deg,#7c3aed,#9333ea);
+    padding:0 16px; height:56px;
+    align-items:center; justify-content:space-between;
+    box-shadow:0 2px 8px rgba(124,58,237,0.3);
+  }
+  .mobile-header-title { color:white; font-size:16px; font-weight:700; }
+  .hamburger {
+    width:36px; height:36px; background:rgba(255,255,255,0.15); border:none; border-radius:8px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    cursor:pointer; padding:0;
+  }
+  .hamburger span { display:block; width:18px; height:2px; background:white; border-radius:2px; transition:all 0.2s; }
+
+  /* ===== BOTTOM NAV (スマホ用) ===== */
+  .bottom-nav {
+    display:none; position:fixed; bottom:0; left:0; right:0; z-index:200;
+    background:white; border-top:1px solid #e5e7eb;
+    padding:8px 0 max(8px, env(safe-area-inset-bottom));
+    box-shadow:0 -4px 12px rgba(0,0,0,0.08);
+  }
+  .bottom-nav-inner { display:flex; justify-content:space-around; }
+  .bnav-item {
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:4px 12px; border-radius:8px; cursor:pointer;
+    color:#9ca3af; font-size:10px; font-weight:500; transition:all 0.15s;
+    border:none; background:transparent; font-family:'Noto Sans JP',sans-serif;
+    min-width:56px;
+  }
+  .bnav-item .bnav-icon { font-size:20px; line-height:1; }
+  .bnav-item.active { color:#7c3aed; }
+  .bnav-item.active .bnav-icon { transform:scale(1.1); }
+
+  /* ===== SIDEBAR OVERLAY (スマホ用) ===== */
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:150;
+  }
+  .sidebar-overlay.open { display:block; }
+
+  /* ===== RESPONSIVE BREAKPOINTS ===== */
+  @media (max-width: 768px) {
+    body { display:block; }
+
+    /* サイドバーをドロワー化 */
+    .sidebar {
+      position:fixed; top:0; left:-240px; width:240px; height:100vh;
+      z-index:160; transition:left 0.25s ease; box-shadow:4px 0 20px rgba(0,0,0,0.15);
+    }
+    .sidebar.open { left:0; }
+
+    /* モバイルヘッダー表示 */
+    .mobile-header { display:flex; }
+
+    /* ボトムナビ表示 */
+    .bottom-nav { display:block; }
+
+    /* メインコンテンツ調整 */
+    .main {
+      padding:72px 16px 80px;
+      min-height:100vh;
+    }
+
+    /* トップバー調整 */
+    .topbar { flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .topbar-left h1 { font-size:18px; }
+    .period-tabs { width:100%; }
+    .period-tab { flex:1; padding:7px 8px; font-size:12px; }
+
+    /* グリッド → 1〜2列 */
+    .g3  { grid-template-columns:1fr; }
+    .g4  { grid-template-columns:repeat(2,1fr); }
+    .g3e { grid-template-columns:repeat(2,1fr); }
+    .g2  { grid-template-columns:1fr; }
+    .g2-1{ grid-template-columns:1fr; }
+    .g1-2{ grid-template-columns:1fr; }
+
+    /* ヒーローカード */
+    .hero-value { font-size:26px; }
+    .card-value { font-size:20px; }
+
+    /* 月チップ */
+    .month-filters { gap:6px; }
+    .chip { padding:4px 10px; font-size:11px; }
+
+    /* テーブルは横スクロール */
+    .table-wrap { border-radius:12px; }
+
+    /* 設定ページ */
+    .settings-row { flex-wrap:wrap; gap:10px; }
+    .text-input { width:100%; }
+
+    /* チャート高さ縮小 */
+    .chart-wrap { padding:14px 14px; }
+  }
+
+  @media (max-width: 480px) {
+    .g4 { grid-template-columns:repeat(2,1fr); }
+    .g3e { grid-template-columns:1fr 1fr; }
+    .topbar-left { flex-wrap:wrap; }
+    .hero-value { font-size:22px; }
+  }
 </style>
 </head>
 <body>
 
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobile-header-title" id="mobilePageTitle">ダッシュボード</div>
+  <button class="reload-btn" style="margin-top:0;font-size:11px;" onclick="reloadData()">🔄</button>
+</div>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="icon">📊</div>広告管理
   </div>
@@ -197,6 +333,10 @@
   <div class="sidebar-item" onclick="showPage('cv',this)">👥 CV 詳細</div>
   <div class="sidebar-item" onclick="showPage('report',this)">📅 月次レポート</div>
   <div class="sidebar-item" onclick="showPage('settings',this)">⚙️ 設定</div>
+  <div style="margin-top:auto;padding:16px 12px 4px;border-top:1px solid rgba(255,255,255,0.15);">
+    <div id="last-updated" style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">未接続</div>
+    <button class="reload-btn" onclick="reloadData()">🔄 データ再取得</button>
+  </div>
 </aside>
 
 <main class="main">
@@ -535,31 +675,46 @@
 </main>
 
 <script>
-// ========== DATA ==========
-const ALL = [
-  {month:'2024/05',cost:19216,  appt:1, apptCpa:19216, meet:1, meetCpa:19216, exp:1, expCpa:19216, cont:1, contCpa:19216, yoyC:null, yoyCpa:null},
-  {month:'2024/06',cost:40513,  appt:0, apptCpa:null,  meet:0, meetCpa:null,  exp:0, expCpa:null,  cont:0, contCpa:null,  yoyC:null, yoyCpa:null},
-  {month:'2024/07',cost:54873,  appt:1, apptCpa:54873, meet:1, meetCpa:54873, exp:1, expCpa:54873, cont:1, contCpa:54873, yoyC:null, yoyCpa:null},
-  {month:'2024/08',cost:61692,  appt:2, apptCpa:30846, meet:2, meetCpa:30846, exp:2, expCpa:30846, cont:2, contCpa:30846, yoyC:null, yoyCpa:null},
-  {month:'2024/09',cost:66618,  appt:1, apptCpa:66618, meet:1, meetCpa:66618, exp:1, expCpa:66618, cont:1, contCpa:66618, yoyC:null, yoyCpa:null},
-  {month:'2024/10',cost:72559,  appt:3, apptCpa:24186, meet:3, meetCpa:24186, exp:3, expCpa:24186, cont:3, contCpa:24186, yoyC:null, yoyCpa:null},
-  {month:'2024/11',cost:108615, appt:5, apptCpa:21723, meet:5, meetCpa:21723, exp:5, expCpa:21723, cont:5, contCpa:21723, yoyC:null, yoyCpa:null},
-  {month:'2024/12',cost:92780,  appt:4, apptCpa:23195, meet:4, meetCpa:23195, exp:4, expCpa:23195, cont:4, contCpa:23195, yoyC:null, yoyCpa:null},
-  {month:'2025/01',cost:93335,  appt:5, apptCpa:18667, meet:5, meetCpa:18667, exp:5, expCpa:18667, cont:5, contCpa:18667, yoyC:null, yoyCpa:null},
-  {month:'2025/02',cost:99475,  appt:4, apptCpa:24869, meet:4, meetCpa:24869, exp:4, expCpa:24869, cont:4, contCpa:24869, yoyC:null, yoyCpa:null},
-  {month:'2025/03',cost:98409,  appt:7, apptCpa:14058, meet:7, meetCpa:14058, exp:6, expCpa:16402, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
-  {month:'2025/04',cost:64672,  appt:6, apptCpa:10779, meet:9, meetCpa:10779, exp:6, expCpa:10779, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
-  {month:'2025/05',cost:85107,  appt:1, apptCpa:85107, meet:1, meetCpa:85107, exp:1, expCpa:85107, cont:1, contCpa:85107, yoyC:0,    yoyCpa:65891},
-  {month:'2025/06',cost:53098,  appt:3, apptCpa:17699, meet:3, meetCpa:17699, exp:3, expCpa:17699, cont:3, contCpa:17699, yoyC:null, yoyCpa:null},
-  {month:'2025/07',cost:81776,  appt:5, apptCpa:16355, meet:4, meetCpa:20444, exp:3, expCpa:27259, cont:2, contCpa:null,  yoyC:null, yoyCpa:27614},
-  {month:'2025/08',cost:83795,  appt:7, apptCpa:11971, meet:7, meetCpa:11971, exp:2, expCpa:41898, cont:0, contCpa:11052, yoyC:null, yoyCpa:null},
-  {month:'2025/09',cost:114052, appt:9, apptCpa:12672, meet:7, meetCpa:16293, exp:1, expCpa:114052,cont:0, contCpa:47434, yoyC:null, yoyCpa:null},
-  {month:'2025/10',cost:126404, appt:10,apptCpa:12640, meet:9, meetCpa:14045, exp:5, expCpa:25281, cont:2, contCpa:1094,  yoyC:null, yoyCpa:null},
-  {month:'2025/11',cost:120186, appt:9, apptCpa:13354, meet:9, meetCpa:13354, exp:6, expCpa:20031, cont:7, contCpa:17169, yoyC:2,    yoyCpa:-4554},
-  {month:'2025/12',cost:193622, appt:15,apptCpa:12908, meet:13,meetCpa:14894, exp:10,expCpa:19362, cont:10,contCpa:19362, yoyC:6,    yoyCpa:-3833},
-  {month:'2026/01',cost:96481,  appt:13,apptCpa:7422,  meet:11,meetCpa:8771,  exp:6, expCpa:16080, cont:6, contCpa:16080, yoyC:1,    yoyCpa:-2587},
-  {month:'2026/02',cost:144862, appt:8, apptCpa:18108, meet:5, meetCpa:28972, exp:3, expCpa:48287, cont:3, contCpa:48287, yoyC:-1,   yoyCpa:23419},
-];
+// ========== GAS 接続設定 ==========
+// ▼ GASデプロイ後に発行されたURLをここに貼り付けてください
+const GAS_URL = 'YOUR_GAS_URL_HERE';
+
+// ========== DATA (動的ロード) ==========
+let ALL = [];
+
+async function loadFromGAS() {
+  showLoading(true);
+  try {
+    const res = await fetch(GAS_URL);
+    if (!res.ok) throw new Error('HTTPエラー: ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    ALL = json.data;
+    showLoading(false);
+    showLastUpdated(json.updated);
+    return true;
+  } catch(err) {
+    showLoading(false);
+    showError('データ取得エラー: ' + err.message);
+    return false;
+  }
+}
+
+function showLoading(on) {
+  document.getElementById('loading-banner').style.display = on ? 'flex' : 'none';
+}
+function showLastUpdated(iso) {
+  if (!iso) return;
+  const d = new Date(iso);
+  const s = d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-updated').textContent = '最終更新: ' + s;
+}
+function showError(msg) {
+  const el = document.getElementById('error-banner');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
+}
 
 const fmt = v => v==null ? '—' : '¥'+v.toLocaleString();
 const fmtN = v => v==null ? '—' : v+'件';
@@ -591,16 +746,43 @@ function mkChart(id,type,labels,datasets,opts={}) {
 }
 
 // ========== PAGE NAVIGATION ==========
-function showPage(page, el) {
+function showPage(page, el, title) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  el.classList.add('active');
+
+  // サイドバー側のアクティブ
+  if (el) el.classList.add('active');
+
+  // ボトムナビのアクティブ
+  const bnav = document.getElementById('bnav-'+page);
+  if (bnav) bnav.classList.add('active');
+
+  // モバイルタイトル更新
+  const titles = {dashboard:'ダッシュボード',cost:'コスト分析',cv:'CV詳細',report:'月次レポート',settings:'設定'};
+  document.getElementById('mobilePageTitle').textContent = title || titles[page] || '';
+
+  // サイドバーを閉じる（スマホ時）
+  closeSidebar();
+
+  // ページ先頭にスクロール
+  document.querySelector('.main').scrollTop = 0;
 
   if (page==='dashboard') render();
   if (page==='cost') renderCost();
   if (page==='cv') renderCv();
   if (page==='report') renderReport();
+}
+
+// ===== SIDEBAR TOGGLE =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
 }
 
 // ========== DASHBOARD ==========
@@ -833,9 +1015,58 @@ function exportCsv() {
   a.click();
 }
 
+// ========== RELOAD ==========
+async function reloadData() {
+  const ok = await loadFromGAS();
+  if (ok) {
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+      const id = activePage.id.replace('page-', '');
+      if (id === 'dashboard') { buildChips(activePeriod); render(); }
+      if (id === 'cost') renderCost();
+      if (id === 'cv') renderCv();
+      if (id === 'report') renderReport();
+    }
+  }
+}
+
 // ========== INIT ==========
-buildChips('2025');
-render();
+async function init() {
+  const ok = await loadFromGAS();
+  if (ok) {
+    buildChips('2025');
+    render();
+  }
+}
+init();
 </script>
+<!-- Bottom Navigation (スマホ用) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-item active" id="bnav-dashboard" onclick="showPage('dashboard', null, 'ダッシュボード')">
+      <span class="bnav-icon">📈</span>ダッシュボード
+    </button>
+    <button class="bnav-item" id="bnav-cost" onclick="showPage('cost', null, 'コスト分析')">
+      <span class="bnav-icon">💰</span>コスト
+    </button>
+    <button class="bnav-item" id="bnav-cv" onclick="showPage('cv', null, 'CV詳細')">
+      <span class="bnav-icon">👥</span>CV詳細
+    </button>
+    <button class="bnav-item" id="bnav-report" onclick="showPage('report', null, '月次レポート')">
+      <span class="bnav-icon">📅</span>レポート
+    </button>
+    <button class="bnav-item" id="bnav-settings" onclick="showPage('settings', null, '設定')">
+      <span class="bnav-icon">⚙️</span>設定
+    </button>
+  </div>
+</nav>
+
+<!-- Loading overlay -->
+<div id="loading-banner">
+  <div class="spinner"></div>
+  <p>スプレッドシートからデータを読み込み中...</p>
+</div>
+<!-- Error banner -->
+<div id="error-banner"></div>
 </body>
 </html>
