@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>広告運用 ダッシュボード</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans JP',sans-serif; background:#f4f5f7; display:flex; min-height:100vh; color:#1a1a2e; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width:220px; background:linear-gradient(160deg,#7c3aed 0%,#6d28d9 60%,#5b21b6 100%);
+    min-height:100vh; padding:28px 16px; display:flex; flex-direction:column; gap:4px; flex-shrink:0;
+    position:sticky; top:0; height:100vh;
+  }
+  .sidebar-logo {
+    display:flex; align-items:center; gap:10px; color:white; font-size:15px; font-weight:700;
+    padding:8px 12px 24px; border-bottom:1px solid rgba(255,255,255,0.15); margin-bottom:8px;
+  }
+  .sidebar-logo .icon {
+    width:30px; height:30px; background:rgba(255,255,255,0.2); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+  }
+  .sidebar-item {
+    display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px;
+    color:rgba(255,255,255,0.75); font-size:14px; font-weight:500; cursor:pointer; transition:all 0.15s;
+  }
+  .sidebar-item.active { background:rgba(255,255,255,0.2); color:white; }
+  .sidebar-item:hover:not(.active) { background:rgba(255,255,255,0.1); color:white; }
+
+  /* ===== MAIN ===== */
+  .main { flex:1; padding:28px 32px; overflow-x:hidden; overflow-y:auto; }
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ===== TOPBAR ===== */
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .topbar-left h1 { font-size:22px; font-weight:700; color:#1a1a2e; }
+  .btn {
+    display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px;
+    font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all 0.15s;
+    font-family:'Noto Sans JP',sans-serif;
+  }
+  .btn-primary { background:#7c3aed; color:white; }
+  .btn-primary:hover { background:#6d28d9; }
+  .btn-outline { background:white; color:#6b7280; border:1px solid #e5e7eb; }
+  .btn-outline:hover { border-color:#7c3aed; color:#7c3aed; }
+
+  .period-tabs { display:flex; background:white; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
+  .period-tab {
+    padding:7px 16px; font-size:13px; font-weight:500; cursor:pointer; color:#6b7280;
+    transition:all 0.15s; border:none; background:transparent; font-family:'Noto Sans JP',sans-serif;
+  }
+  .period-tab.active { background:#7c3aed; color:white; }
+  .period-tab:hover:not(.active) { color:#7c3aed; }
+
+  /* ===== CHIPS ===== */
+  .month-filters { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .chip {
+    padding:5px 13px; border-radius:20px; font-size:12px; font-weight:500;
+    cursor:pointer; transition:all 0.15s; border:1.5px solid transparent; font-family:'Noto Sans JP',sans-serif;
+  }
+  .chip-all { background:#ede9fe; color:#7c3aed; border-color:#7c3aed; }
+  .chip-month { background:white; color:#6b7280; border-color:#e5e7eb; }
+  .chip-month:hover,.chip-month.active { border-color:#7c3aed; color:#7c3aed; background:#faf5ff; }
+
+  /* ===== CARDS ===== */
+  .card { background:white; border-radius:16px; padding:20px 22px; border:1px solid #f0f0f5; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .card-hero {
+    background:linear-gradient(135deg,#7c3aed 0%,#9333ea 100%); color:white; border-radius:16px;
+    padding:24px 28px; display:flex; flex-direction:column; justify-content:space-between;
+    min-height:130px; position:relative; overflow:hidden; border:none; box-shadow:0 4px 20px rgba(124,58,237,0.3);
+  }
+  .card-hero::after {
+    content:'¥'; position:absolute; right:28px; top:50%; transform:translateY(-50%);
+    width:56px; height:56px; background:rgba(255,255,255,0.2); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700;
+    line-height:56px; text-align:center;
+  }
+  .hero-label { font-size:13px; font-weight:500; opacity:0.85; margin-bottom:10px; }
+  .hero-value { font-size:34px; font-weight:700; letter-spacing:-0.5px; }
+  .card-label { font-size:11.5px; color:#9ca3af; font-weight:500; margin-bottom:10px; }
+  .card-value { font-size:26px; font-weight:700; color:#111827; letter-spacing:-0.3px; }
+  .card-value-sm { font-size:20px; font-weight:700; color:#111827; letter-spacing:-0.3px; }
+  .card-sub { font-size:11.5px; color:#9ca3af; margin-top:4px; }
+  .card-row { display:flex; justify-content:space-between; align-items:flex-start; }
+  .card-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .icon-green  { background:#dcfce7; }
+  .icon-purple { background:#ede9fe; }
+  .icon-blue   { background:#dbeafe; }
+  .icon-orange { background:#ffedd5; }
+  .icon-red    { background:#fee2e2; }
+  .icon-yellow { background:#fef3c7; }
+  .icon-teal   { background:#ccfbf1; }
+  .icon-gray   { background:#f3f4f6; }
+
+  /* ===== GRIDS ===== */
+  .g  { display:grid; gap:16px; margin-bottom:16px; }
+  .g3 { grid-template-columns:1.6fr 1fr 1fr; }
+  .g4 { grid-template-columns:repeat(4,1fr); }
+  .g3e{ grid-template-columns:repeat(3,1fr); }
+  .g2 { grid-template-columns:repeat(2,1fr); }
+  .g2-1{ grid-template-columns:2fr 1fr; }
+  .g1-2{ grid-template-columns:1fr 2fr; }
+
+  /* ===== CHARTS ===== */
+  .chart-wrap { background:white; border-radius:16px; padding:20px 22px; border:1px solid #f0f0f5; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .chart-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .chart-title { font-size:13.5px; font-weight:700; color:#111827; }
+  .chart-sub2 { font-size:11px; color:#9ca3af; margin-top:2px; }
+  .legend-row { display:flex; gap:14px; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#6b7280; }
+  .ldot { width:8px; height:8px; border-radius:50%; }
+
+  /* ===== TABLE ===== */
+  .table-wrap { background:white; border-radius:16px; border:1px solid #f0f0f5; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden; margin-bottom:16px; }
+  .table-hd { padding:18px 22px 14px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead th {
+    padding:9px 14px; text-align:right; font-size:10.5px; font-weight:600; color:#9ca3af;
+    background:#fafafa; border-bottom:1px solid #f3f4f6; white-space:nowrap;
+    position:sticky; top:0; z-index:1;
+  }
+  thead th:first-child { text-align:left; }
+  tbody tr { border-bottom:1px solid #f9fafb; transition:background 0.1s; }
+  tbody tr:hover { background:#faf5ff; }
+  tbody tr:last-child { border-bottom:none; }
+  td { padding:10px 14px; text-align:right; white-space:nowrap; color:#374151; font-variant-numeric:tabular-nums; }
+  td:first-child { text-align:left; font-weight:700; color:#7c3aed; font-size:13px; }
+  td.cost  { font-weight:600; color:#111827; }
+  td.cpa-low  { color:#16a34a; font-weight:600; }
+  td.cpa-mid  { color:#2563eb; font-weight:600; }
+  td.cpa-high { color:#ea580c; font-weight:600; }
+  td.muted { color:#d1d5db; }
+  td.pos   { color:#16a34a; }
+  td.neg   { color:#dc2626; }
+
+  /* ===== SECTION TITLE ===== */
+  .section-title { font-size:13px; font-weight:700; color:#6b7280; letter-spacing:0.5px; text-transform:uppercase; margin:24px 0 12px; }
+
+  /* ===== BADGE ===== */
+  .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+  .badge-green  { background:#dcfce7; color:#16a34a; }
+  .badge-red    { background:#fee2e2; color:#dc2626; }
+  .badge-blue   { background:#dbeafe; color:#2563eb; }
+  .badge-purple { background:#ede9fe; color:#7c3aed; }
+  .badge-gray   { background:#f3f4f6; color:#6b7280; }
+
+  /* ===== SETTINGS ===== */
+  .settings-group { background:white; border-radius:16px; border:1px solid #f0f0f5; overflow:hidden; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .settings-group-title { padding:16px 22px; font-size:13px; font-weight:700; color:#374151; border-bottom:1px solid #f3f4f6; background:#fafafa; }
+  .settings-row { display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid #f9fafb; }
+  .settings-row:last-child { border-bottom:none; }
+  .settings-label { font-size:13.5px; color:#374151; font-weight:500; }
+  .settings-desc  { font-size:11.5px; color:#9ca3af; margin-top:2px; }
+  .toggle { width:40px; height:22px; background:#e5e7eb; border-radius:11px; position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+  .toggle.on { background:#7c3aed; }
+  .toggle::after { content:''; position:absolute; width:16px; height:16px; background:white; border-radius:50%; top:3px; left:3px; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+  .toggle.on::after { transform:translateX(18px); }
+  .select-input {
+    padding:6px 12px; border-radius:8px; border:1px solid #e5e7eb; font-size:13px;
+    color:#374151; background:white; cursor:pointer; font-family:'Noto Sans JP',sans-serif;
+  }
+  .text-input {
+    padding:6px 12px; border-radius:8px; border:1px solid #e5e7eb; font-size:13px;
+    color:#374151; background:white; font-family:'Noto Sans JP',sans-serif; width:200px;
+    outline:none; transition:border-color 0.15s;
+  }
+  .text-input:focus { border-color:#7c3aed; }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar { height:6px; background:#f3f4f6; border-radius:3px; overflow:hidden; margin-top:8px; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
+
+  /* ===== REPORT CARD ===== */
+  .report-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f3f4f6; }
+  .report-row:last-child { border-bottom:none; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+  .card,.card-hero,.chart-wrap,.table-wrap,.settings-group { animation:fadeUp 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="icon">📊</div>広告管理
+  </div>
+  <div class="sidebar-item active" onclick="showPage('dashboard',this)">📈 ダッシュボード</div>
+  <div class="sidebar-item" onclick="showPage('cost',this)">💰 コスト分析</div>
+  <div class="sidebar-item" onclick="showPage('cv',this)">👥 CV 詳細</div>
+  <div class="sidebar-item" onclick="showPage('report',this)">📅 月次レポート</div>
+  <div class="sidebar-item" onclick="showPage('settings',this)">⚙️ 設定</div>
+</aside>
+
+<main class="main">
+
+<!-- ==================== PAGE: DASHBOARD ==================== -->
+<div id="page-dashboard" class="page active">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>ダッシュボード</h1>
+      <button class="btn btn-primary" onclick="render()">🔄 更新</button>
+    </div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="filterPeriod('all',this)">全期間</button>
+      <button class="period-tab" onclick="filterPeriod('2024',this)">2024</button>
+      <button class="period-tab active" onclick="filterPeriod('2025',this)">2025</button>
+      <button class="period-tab" onclick="filterPeriod('2026',this)">2026</button>
+    </div>
+  </div>
+  <div class="month-filters" id="monthChips"></div>
+
+  <div class="g g3">
+    <div class="card-hero">
+      <div class="hero-label">累計 広告費 (COST)</div>
+      <div class="hero-value" id="totalCost">—</div>
+    </div>
+    <div class="card">
+      <div class="card-row">
+        <div><div class="card-label">最新月 COST</div><div class="card-value" id="latestCost">—</div><div class="card-sub" id="latestMonth">—</div></div>
+        <div class="card-icon icon-purple">💸</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-row">
+        <div><div class="card-label">最新月 面談CPA</div><div class="card-value" id="latestMeetCpa">—</div><div class="card-sub" id="latestMeetN">—</div></div>
+        <div class="card-icon icon-blue">🤝</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g g4">
+    <div class="card"><div class="card-row"><div><div class="card-label">面談数 合計</div><div class="card-value" id="totalMeet">—</div></div><div class="card-icon icon-blue">👥</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">体験数 合計</div><div class="card-value" id="totalExp">—</div></div><div class="card-icon icon-teal">✨</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">契約数 合計</div><div class="card-value" id="totalCont">—</div></div><div class="card-icon icon-green">✅</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">最良 契約CPA</div><div class="card-value" id="bestCpa">—</div><div class="card-sub" id="bestCpaMonth">—</div></div><div class="card-icon icon-yellow">🏆</div></div></div>
+  </div>
+
+  <div class="g g3e">
+    <div class="card"><div class="card-row"><div><div class="card-label">面談予約CPA 平均</div><div class="card-value" id="avgApptCpa">—</div></div><div class="card-icon icon-purple">📅</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">体験CPA 平均</div><div class="card-value" id="avgExpCpa">—</div></div><div class="card-icon icon-orange">🌟</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">契約CPA 平均</div><div class="card-value" id="avgContCpa">—</div></div><div class="card-icon icon-red">📝</div></div></div>
+  </div>
+
+  <div class="g g2-1">
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">月次コスト推移</div><div class="chart-sub2">広告費用の月次変動</div></div></div>
+      <div style="position:relative;height:200px;"><canvas id="costChart"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd">
+        <div><div class="chart-title">CV 数推移</div><div class="chart-sub2">面談・体験・契約</div></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="ldot" style="background:#7c3aed"></div>面談</div>
+          <div class="legend-item"><div class="ldot" style="background:#06b6d4"></div>体験</div>
+          <div class="legend-item"><div class="ldot" style="background:#10b981"></div>契約</div>
+        </div>
+      </div>
+      <div style="position:relative;height:200px;"><canvas id="cvChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g g3e">
+    <div class="chart-wrap"><div class="chart-hd"><div><div class="chart-title">面談CPA 推移</div><div class="chart-sub2">月別獲得単価</div></div></div><div style="position:relative;height:160px;"><canvas id="cpa1"></canvas></div></div>
+    <div class="chart-wrap"><div class="chart-hd"><div><div class="chart-title">体験CPA 推移</div><div class="chart-sub2">月別獲得単価</div></div></div><div style="position:relative;height:160px;"><canvas id="cpa2"></canvas></div></div>
+    <div class="chart-wrap"><div class="chart-hd"><div><div class="chart-title">契約CPA 推移</div><div class="chart-sub2">月別獲得単価</div></div></div><div style="position:relative;height:160px;"><canvas id="cpa3"></canvas></div></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-hd"><div><div class="chart-title">月次 詳細データ</div><div class="chart-sub2">期間内の全パフォーマンス</div></div></div>
+    <div style="overflow-x:auto;overflow-y:auto;max-height:320px;">
+      <table>
+        <thead><tr>
+          <th>Month</th><th>Cost</th><th>面談予約数</th><th>面談予約CPA</th>
+          <th>面談数</th><th>面談CPA</th><th>体験数</th><th>体験CPA</th>
+          <th>契約数</th><th>契約CPA</th><th>前年比 契約数</th><th>前年比 CPA</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: COST ==================== -->
+<div id="page-cost" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>コスト分析</h1></div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="filterPeriodCost('all',this)">全期間</button>
+      <button class="period-tab" onclick="filterPeriodCost('2024',this)">2024</button>
+      <button class="period-tab active" onclick="filterPeriodCost('2025',this)">2025</button>
+      <button class="period-tab" onclick="filterPeriodCost('2026',this)">2026</button>
+    </div>
+  </div>
+
+  <div class="g g4">
+    <div class="card"><div class="card-row"><div><div class="card-label">期間合計コスト</div><div class="card-value" id="c-total">—</div></div><div class="card-icon icon-purple">💰</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">月平均コスト</div><div class="card-value" id="c-avg">—</div></div><div class="card-icon icon-blue">📊</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">最高コスト月</div><div class="card-value" id="c-max">—</div><div class="card-sub" id="c-max-m">—</div></div><div class="card-icon icon-red">📈</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">最低コスト月</div><div class="card-value" id="c-min">—</div><div class="card-sub" id="c-min-m">—</div></div><div class="card-icon icon-green">📉</div></div></div>
+  </div>
+
+  <div class="g g2-1">
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">月次コスト推移（棒グラフ）</div><div class="chart-sub2">高コスト月はオレンジで表示</div></div></div>
+      <div style="position:relative;height:240px;"><canvas id="costBar2"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">コスト分布</div><div class="chart-sub2">金額帯別の月数</div></div></div>
+      <div style="position:relative;height:240px;"><canvas id="costDist"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-wrap" style="margin-bottom:16px;">
+    <div class="chart-hd"><div><div class="chart-title">コスト推移（折れ線）</div><div class="chart-sub2">月次変動トレンド</div></div></div>
+    <div style="position:relative;height:160px;"><canvas id="costLine"></canvas></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-hd"><div><div class="chart-title">月別コスト詳細</div></div></div>
+    <div style="overflow-x:auto;overflow-y:auto;max-height:300px;">
+      <table>
+        <thead><tr><th>Month</th><th>Cost</th><th>前月比</th><th>月平均との差</th><th>評価</th></tr></thead>
+        <tbody id="costTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: CV ==================== -->
+<div id="page-cv" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>CV 詳細</h1></div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="filterPeriodCv('all',this)">全期間</button>
+      <button class="period-tab" onclick="filterPeriodCv('2024',this)">2024</button>
+      <button class="period-tab active" onclick="filterPeriodCv('2025',this)">2025</button>
+      <button class="period-tab" onclick="filterPeriodCv('2026',this)">2026</button>
+    </div>
+  </div>
+
+  <div class="g g3e">
+    <div class="card">
+      <div class="card-row"><div><div class="card-label">面談数 合計</div><div class="card-value" id="cv-meet">—</div></div><div class="card-icon icon-blue">👥</div></div>
+      <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill" id="cv-meet-bar" style="background:#7c3aed;width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row"><div><div class="card-label">体験数 合計</div><div class="card-value" id="cv-exp">—</div></div><div class="card-icon icon-teal">✨</div></div>
+      <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill" id="cv-exp-bar" style="background:#06b6d4;width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-row"><div><div class="card-label">契約数 合計</div><div class="card-value" id="cv-cont">—</div></div><div class="card-icon icon-green">✅</div></div>
+      <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill" id="cv-cont-bar" style="background:#10b981;width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="g g3e">
+    <div class="card"><div class="card-row"><div><div class="card-label">面談→体験 転換率</div><div class="card-value" id="cv-r1">—</div></div><div class="card-icon icon-orange">🔄</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">体験→契約 転換率</div><div class="card-value" id="cv-r2">—</div></div><div class="card-icon icon-yellow">🎯</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">面談→契約 転換率</div><div class="card-value" id="cv-r3">—</div></div><div class="card-icon icon-green">🏆</div></div></div>
+  </div>
+
+  <div class="g g2">
+    <div class="chart-wrap">
+      <div class="chart-hd">
+        <div><div class="chart-title">CV 数 月次推移</div><div class="chart-sub2">面談・体験・契約の推移</div></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="ldot" style="background:#7c3aed"></div>面談</div>
+          <div class="legend-item"><div class="ldot" style="background:#06b6d4"></div>体験</div>
+          <div class="legend-item"><div class="ldot" style="background:#10b981"></div>契約</div>
+        </div>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="cvLine"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">CV ファネル</div><div class="chart-sub2">面談→体験→契約</div></div></div>
+      <div style="position:relative;height:220px;"><canvas id="cvFunnel"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g g2">
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">面談CPA vs 契約CPA</div><div class="chart-sub2">月別比較</div></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="ldot" style="background:#7c3aed"></div>面談CPA</div>
+          <div class="legend-item"><div class="ldot" style="background:#10b981"></div>契約CPA</div>
+        </div>
+      </div>
+      <div style="position:relative;height:200px;"><canvas id="cpaCompare"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">前年同月比 契約数</div><div class="chart-sub2">YoY 比較（件数差）</div></div></div>
+      <div style="position:relative;height:200px;"><canvas id="yoyChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: REPORT ==================== -->
+<div id="page-report" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>月次レポート</h1></div>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ 印刷 / PDF</button>
+  </div>
+
+  <div class="g g3e" id="reportMonthCards"></div>
+
+  <div class="g g2">
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">全期間 コスト推移</div></div></div>
+      <div style="position:relative;height:200px;"><canvas id="rptCostChart"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd">
+        <div><div class="chart-title">全期間 CV推移</div></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="ldot" style="background:#7c3aed"></div>面談</div>
+          <div class="legend-item"><div class="ldot" style="background:#10b981"></div>契約</div>
+        </div>
+      </div>
+      <div style="position:relative;height:200px;"><canvas id="rptCvChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-hd"><div><div class="chart-title">全期間 月次サマリー</div></div></div>
+    <div style="overflow-x:auto;overflow-y:auto;max-height:400px;">
+      <table>
+        <thead><tr>
+          <th>Month</th><th>Cost</th><th>面談数</th><th>面談CPA</th>
+          <th>体験数</th><th>体験CPA</th><th>契約数</th><th>契約CPA</th><th>前年比</th>
+        </tr></thead>
+        <tbody id="rptTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: SETTINGS ==================== -->
+<div id="page-settings" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>設定</h1></div>
+    <button class="btn btn-primary" onclick="saveSettings()">💾 保存</button>
+  </div>
+
+  <div class="g g2">
+    <div>
+      <div class="settings-group">
+        <div class="settings-group-title">📊 表示設定</div>
+        <div class="settings-row">
+          <div><div class="settings-label">デフォルト表示期間</div><div class="settings-desc">ダッシュボード起動時の初期フィルター</div></div>
+          <select class="select-input" id="s-period">
+            <option value="2025" selected>2025年</option>
+            <option value="2024">2024年</option>
+            <option value="all">全期間</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">通貨表示</div><div class="settings-desc">金額の表示フォーマット</div></div>
+          <select class="select-input" id="s-currency">
+            <option value="jpy" selected>¥ 円 (JPY)</option>
+            <option value="usd">$ ドル (USD)</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">グラフのアニメーション</div><div class="settings-desc">チャート描画時のアニメーション</div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')" id="s-anim"></div>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">テーブル行数</div><div class="settings-desc">スクロール前の最大表示行数</div></div>
+          <select class="select-input" id="s-rows">
+            <option value="5">5行</option>
+            <option value="8" selected>8行</option>
+            <option value="12">12行</option>
+            <option value="all">全件</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">🎨 カラーテーマ</div>
+        <div class="settings-row">
+          <div><div class="settings-label">アクセントカラー</div><div class="settings-desc">サイドバー・ボタンのカラー</div></div>
+          <input type="color" value="#7c3aed" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;" id="s-color" onchange="applyColor(this.value)">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">ダークモード</div><div class="settings-desc">現在: ライトモード</div></div>
+          <div class="toggle" onclick="this.classList.toggle('on')" id="s-dark"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="settings-group">
+        <div class="settings-group-title">🚨 アラート設定</div>
+        <div class="settings-row">
+          <div><div class="settings-label">コスト上限アラート</div><div class="settings-desc">月次コストがこの金額を超えたら警告表示</div></div>
+          <input type="number" class="text-input" id="s-cost-alert" value="150000" style="width:120px;">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">CPA上限アラート（契約）</div><div class="settings-desc">契約CPAがこの金額を超えたら赤表示</div></div>
+          <input type="number" class="text-input" id="s-cpa-alert" value="30000" style="width:120px;">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">アラート通知</div><div class="settings-desc">ページ上部にバナー表示</div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')" id="s-alert-on"></div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">📁 データ管理</div>
+        <div class="settings-row">
+          <div><div class="settings-label">CSVエクスポート</div><div class="settings-desc">全データをCSV形式でダウンロード</div></div>
+          <button class="btn btn-outline" onclick="exportCsv()">⬇️ CSV出力</button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">データバージョン</div><div class="settings-desc">最終更新: 2026/02</div></div>
+          <span class="badge badge-green">最新</span>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-label">キャッシュをクリア</div><div class="settings-desc">グラフ・フィルターの状態をリセット</div></div>
+          <button class="btn btn-outline" onclick="location.reload()">🗑️ リセット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ========== DATA ==========
+const ALL = [
+  {month:'2024/05',cost:19216,  appt:1, apptCpa:19216, meet:1, meetCpa:19216, exp:1, expCpa:19216, cont:1, contCpa:19216, yoyC:null, yoyCpa:null},
+  {month:'2024/06',cost:40513,  appt:0, apptCpa:null,  meet:0, meetCpa:null,  exp:0, expCpa:null,  cont:0, contCpa:null,  yoyC:null, yoyCpa:null},
+  {month:'2024/07',cost:54873,  appt:1, apptCpa:54873, meet:1, meetCpa:54873, exp:1, expCpa:54873, cont:1, contCpa:54873, yoyC:null, yoyCpa:null},
+  {month:'2024/08',cost:61692,  appt:2, apptCpa:30846, meet:2, meetCpa:30846, exp:2, expCpa:30846, cont:2, contCpa:30846, yoyC:null, yoyCpa:null},
+  {month:'2024/09',cost:66618,  appt:1, apptCpa:66618, meet:1, meetCpa:66618, exp:1, expCpa:66618, cont:1, contCpa:66618, yoyC:null, yoyCpa:null},
+  {month:'2024/10',cost:72559,  appt:3, apptCpa:24186, meet:3, meetCpa:24186, exp:3, expCpa:24186, cont:3, contCpa:24186, yoyC:null, yoyCpa:null},
+  {month:'2024/11',cost:108615, appt:5, apptCpa:21723, meet:5, meetCpa:21723, exp:5, expCpa:21723, cont:5, contCpa:21723, yoyC:null, yoyCpa:null},
+  {month:'2024/12',cost:92780,  appt:4, apptCpa:23195, meet:4, meetCpa:23195, exp:4, expCpa:23195, cont:4, contCpa:23195, yoyC:null, yoyCpa:null},
+  {month:'2025/01',cost:93335,  appt:5, apptCpa:18667, meet:5, meetCpa:18667, exp:5, expCpa:18667, cont:5, contCpa:18667, yoyC:null, yoyCpa:null},
+  {month:'2025/02',cost:99475,  appt:4, apptCpa:24869, meet:4, meetCpa:24869, exp:4, expCpa:24869, cont:4, contCpa:24869, yoyC:null, yoyCpa:null},
+  {month:'2025/03',cost:98409,  appt:7, apptCpa:14058, meet:7, meetCpa:14058, exp:6, expCpa:16402, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/04',cost:64672,  appt:6, apptCpa:10779, meet:9, meetCpa:10779, exp:6, expCpa:10779, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/05',cost:85107,  appt:1, apptCpa:85107, meet:1, meetCpa:85107, exp:1, expCpa:85107, cont:1, contCpa:85107, yoyC:0,    yoyCpa:65891},
+  {month:'2025/06',cost:53098,  appt:3, apptCpa:17699, meet:3, meetCpa:17699, exp:3, expCpa:17699, cont:3, contCpa:17699, yoyC:null, yoyCpa:null},
+  {month:'2025/07',cost:81776,  appt:5, apptCpa:16355, meet:4, meetCpa:20444, exp:3, expCpa:27259, cont:2, contCpa:null,  yoyC:null, yoyCpa:27614},
+  {month:'2025/08',cost:83795,  appt:7, apptCpa:11971, meet:7, meetCpa:11971, exp:2, expCpa:41898, cont:0, contCpa:11052, yoyC:null, yoyCpa:null},
+  {month:'2025/09',cost:114052, appt:9, apptCpa:12672, meet:7, meetCpa:16293, exp:1, expCpa:114052,cont:0, contCpa:47434, yoyC:null, yoyCpa:null},
+  {month:'2025/10',cost:126404, appt:10,apptCpa:12640, meet:9, meetCpa:14045, exp:5, expCpa:25281, cont:2, contCpa:1094,  yoyC:null, yoyCpa:null},
+  {month:'2025/11',cost:120186, appt:9, apptCpa:13354, meet:9, meetCpa:13354, exp:6, expCpa:20031, cont:7, contCpa:17169, yoyC:2,    yoyCpa:-4554},
+  {month:'2025/12',cost:193622, appt:15,apptCpa:12908, meet:13,meetCpa:14894, exp:10,expCpa:19362, cont:10,contCpa:19362, yoyC:6,    yoyCpa:-3833},
+  {month:'2026/01',cost:96481,  appt:13,apptCpa:7422,  meet:11,meetCpa:8771,  exp:6, expCpa:16080, cont:6, contCpa:16080, yoyC:1,    yoyCpa:-2587},
+  {month:'2026/02',cost:144862, appt:8, apptCpa:18108, meet:5, meetCpa:28972, exp:3, expCpa:48287, cont:3, contCpa:48287, yoyC:-1,   yoyCpa:23419},
+];
+
+const fmt = v => v==null ? '—' : '¥'+v.toLocaleString();
+const fmtN = v => v==null ? '—' : v+'件';
+const avg = arr => { const v=arr.filter(x=>x!=null); return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null; };
+const cc = v => v==null?'muted':v<15000?'cpa-low':v<30000?'cpa-mid':'cpa-high';
+
+let charts = {};
+let activePeriod='2025', activeMonth=null;
+let activePeriodCost='2025', activePeriodCv='2025';
+
+const filterData = (period) => period==='all' ? ALL : ALL.filter(d=>d.month.startsWith(period));
+const getFiltered = () => {
+  let d = filterData(activePeriod);
+  if (activeMonth) d = d.filter(r=>r.month===activeMonth);
+  return d;
+};
+
+const tipBase = (label) => ({
+  backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',cornerRadius:8,callbacks:{label}
+});
+const scaleXY = (yFmt) => ({
+  x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},
+  y:{ticks:{color:'#9ca3af',font:{size:10},callback:yFmt},grid:{color:'#f3f4f6'}}
+});
+
+function mkChart(id,type,labels,datasets,opts={}) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,...opts}});
+}
+
+// ========== PAGE NAVIGATION ==========
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+
+  if (page==='dashboard') render();
+  if (page==='cost') renderCost();
+  if (page==='cv') renderCv();
+  if (page==='report') renderReport();
+}
+
+// ========== DASHBOARD ==========
+function render() {
+  const data = getFiltered();
+  // KPIs
+  document.getElementById('totalCost').textContent = '¥'+data.reduce((s,d)=>s+d.cost,0).toLocaleString();
+  const last = [...data].reverse().find(d=>d.cost);
+  if(last){
+    document.getElementById('latestCost').textContent=fmt(last.cost);
+    document.getElementById('latestMonth').textContent=last.month;
+    document.getElementById('latestMeetCpa').textContent=fmt(last.meetCpa);
+    document.getElementById('latestMeetN').textContent='面談数: '+fmtN(last.meet);
+  }
+  document.getElementById('totalMeet').textContent=data.reduce((s,d)=>s+(d.meet||0),0)+'件';
+  document.getElementById('totalExp').textContent=data.reduce((s,d)=>s+(d.exp||0),0)+'件';
+  document.getElementById('totalCont').textContent=data.reduce((s,d)=>s+(d.cont||0),0)+'件';
+  const best=data.filter(d=>d.contCpa).reduce((b,d)=>(!b||d.contCpa<b.contCpa)?d:b,null);
+  if(best){document.getElementById('bestCpa').textContent=fmt(best.contCpa);document.getElementById('bestCpaMonth').textContent=best.month;}
+  document.getElementById('avgApptCpa').textContent=fmt(avg(data.map(d=>d.apptCpa)));
+  document.getElementById('avgExpCpa').textContent=fmt(avg(data.map(d=>d.expCpa)));
+  document.getElementById('avgContCpa').textContent=fmt(avg(data.map(d=>d.contCpa)));
+  // Charts
+  const labels=data.map(d=>d.month.slice(5));
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('costChart','bar',labels,[{data:data.map(d=>d.cost),backgroundColor:data.map(d=>d.cost>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:data.map(d=>d.cost>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('cvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true},
+    {label:'体験',data:data.map(d=>d.exp), borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.08)', tension:0.4,pointRadius:3,fill:false},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:3,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+  const mkCpa=(id,key,color)=>mkChart(id,'line',labels,[{data:data.map(d=>d[key]),borderColor:color,backgroundColor:color.replace(')',',0.08)').replace('rgb','rgba'),tension:0.4,pointRadius:2,fill:true,spanGaps:false}],{plugins:{legend:{display:false},tooltip:tipBase(c=>fmt(c.raw))},scales:{x:{ticks:{color:'#9ca3af',font:{size:9}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:9},callback:v=>'¥'+(v/1000).toFixed(0)+'k'},grid:{color:'#f3f4f6'}}}});
+  mkCpa('cpa1','meetCpa','rgb(124,58,237)');
+  mkCpa('cpa2','expCpa','rgb(6,182,212)');
+  mkCpa('cpa3','contCpa','rgb(16,185,129)');
+  // Table
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  [...data].reverse().forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.appt)}</td><td class="${cc(d.apptCpa)}">${fmt(d.apptCpa)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.exp)}</td><td class="${cc(d.expCpa)}">${fmt(d.expCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${d.yoyC==null?'muted':d.yoyC>=0?'pos':'neg'}">${d.yoyC==null?'—':(d.yoyC>=0?'+':'')+d.yoyC+'件'}</td><td class="${d.yoyCpa==null?'muted':d.yoyCpa<=0?'pos':'neg'}">${d.yoyCpa==null?'—':(d.yoyCpa>=0?'+':'')+fmt(d.yoyCpa).replace('¥','')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildChips(period) {
+  const c=document.getElementById('monthChips'); c.innerHTML='';
+  const all=document.createElement('div');
+  all.className='chip chip-all'; all.textContent='すべて';
+  all.onclick=()=>{activeMonth=null;render();buildChips(period);};
+  c.appendChild(all);
+  const months=period==='all'?ALL.map(d=>d.month):ALL.filter(d=>d.month.startsWith(period)).map(d=>d.month);
+  months.forEach(m=>{
+    const chip=document.createElement('div');
+    chip.className='chip chip-month'+(activeMonth===m?' active':'');
+    chip.textContent=m;
+    chip.onclick=()=>{activeMonth=m;document.querySelectorAll('.chip-month').forEach(c=>c.classList.remove('active'));chip.classList.add('active');render();};
+    c.appendChild(chip);
+  });
+}
+
+function filterPeriod(p,el) {
+  activePeriod=p; activeMonth=null;
+  document.querySelectorAll('#page-dashboard .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  buildChips(p); render();
+}
+
+// ========== COST ==========
+function renderCost() {
+  const data = filterData(activePeriodCost);
+  const labels = data.map(d=>d.month.slice(5));
+  const costs = data.map(d=>d.cost);
+  const total = costs.reduce((a,b)=>a+b,0);
+  const avgC = Math.round(total/costs.length);
+  const maxD = data.reduce((b,d)=>d.cost>b.cost?d:b);
+  const minD = data.reduce((b,d)=>d.cost<b.cost?d:b);
+
+  document.getElementById('c-total').textContent = fmt(total);
+  document.getElementById('c-avg').textContent = fmt(avgC);
+  document.getElementById('c-max').textContent = fmt(maxD.cost);
+  document.getElementById('c-max-m').textContent = maxD.month;
+  document.getElementById('c-min').textContent = fmt(minD.cost);
+  document.getElementById('c-min-m').textContent = minD.month;
+
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('costBar2','bar',labels,[{data:costs,backgroundColor:costs.map(c=>c>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:costs.map(c=>c>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+
+  // Distribution donut
+  const bins = [0,0,0,0]; // <50k, 50-100k, 100-150k, 150k+
+  costs.forEach(c=>{ if(c<50000)bins[0]++; else if(c<100000)bins[1]++; else if(c<150000)bins[2]++; else bins[3]++; });
+  mkChart('costDist','doughnut',['〜5万','5〜10万','10〜15万','15万〜'],[{data:bins,backgroundColor:['#a78bfa','#7c3aed','#f59e0b','#ef4444'],borderWidth:0}],{plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b7280',font:{size:11}}},tooltip:tipBase(c=>c.raw+'ヶ月')},cutout:'60%'});
+
+  mkChart('costLine','line',labels,[{data:costs,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+
+  // Table
+  const tbody=document.getElementById('costTableBody'); tbody.innerHTML='';
+  [...data].reverse().forEach((d,i,arr)=>{
+    const prev = arr[i+1];
+    const diff = prev ? d.cost-prev.cost : null;
+    const vsAvg = d.cost - avgC;
+    let badge = '';
+    if(d.cost>150000) badge='<span class="badge badge-red">高コスト</span>';
+    else if(d.cost<70000) badge='<span class="badge badge-green">低コスト</span>';
+    else badge='<span class="badge badge-blue">通常</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td class="${diff==null?'muted':diff>0?'neg':'pos'}">${diff==null?'—':(diff>0?'+':'')+fmt(diff).replace('¥','')}</td><td class="${vsAvg>0?'neg':'pos'}">${vsAvg>0?'+':''+''}${fmt(vsAvg).replace('¥','')}</td><td>${badge}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterPeriodCost(p,el) {
+  activePeriodCost=p;
+  document.querySelectorAll('#page-cost .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCost();
+}
+
+// ========== CV ==========
+function renderCv() {
+  const data = filterData(activePeriodCv);
+  const labels = data.map(d=>d.month.slice(5));
+  const totalMeet = data.reduce((s,d)=>s+(d.meet||0),0);
+  const totalExp  = data.reduce((s,d)=>s+(d.exp||0),0);
+  const totalCont = data.reduce((s,d)=>s+(d.cont||0),0);
+  const maxMeet = Math.max(...data.map(d=>d.meet||0));
+
+  document.getElementById('cv-meet').textContent = totalMeet+'件';
+  document.getElementById('cv-exp').textContent = totalExp+'件';
+  document.getElementById('cv-cont').textContent = totalCont+'件';
+  setTimeout(()=>{
+    document.getElementById('cv-meet-bar').style.width='100%';
+    document.getElementById('cv-exp-bar').style.width=(totalMeet>0?totalExp/totalMeet*100:0)+'%';
+    document.getElementById('cv-cont-bar').style.width=(totalMeet>0?totalCont/totalMeet*100:0)+'%';
+  },100);
+
+  const r1 = totalMeet>0 ? (totalExp/totalMeet*100).toFixed(1)+'%' : '—';
+  const r2 = totalExp>0  ? (totalCont/totalExp*100).toFixed(1)+'%' : '—';
+  const r3 = totalMeet>0 ? (totalCont/totalMeet*100).toFixed(1)+'%' : '—';
+  document.getElementById('cv-r1').textContent = r1;
+  document.getElementById('cv-r2').textContent = r2;
+  document.getElementById('cv-r3').textContent = r3;
+
+  mkChart('cvLine','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true},
+    {label:'体験',data:data.map(d=>d.exp), borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.06)', tension:0.4,pointRadius:3,fill:false},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.06)',tension:0.4,pointRadius:3,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  mkChart('cvFunnel','bar',['面談予約','面談','体験','契約'],[{data:[data.reduce((s,d)=>s+(d.appt||0),0),totalMeet,totalExp,totalCont],backgroundColor:['rgba(167,139,250,0.7)','rgba(124,58,237,0.7)','rgba(6,182,212,0.7)','rgba(16,185,129,0.7)'],borderColor:['#a78bfa','#7c3aed','#06b6d4','#10b981'],borderWidth:1.5,borderRadius:6}],{indexAxis:'y',plugins:{legend:{display:false},tooltip:tipBase(c=>c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{display:false}}}});
+
+  mkChart('cpaCompare','line',labels,[
+    {label:'面談CPA',data:data.map(d=>d.meetCpa),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.05)',tension:0.4,pointRadius:3,fill:false,spanGaps:false},
+    {label:'契約CPA',data:data.map(d=>d.contCpa),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.05)',tension:0.4,pointRadius:3,fill:false,spanGaps:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+fmt(c.raw))},scales:scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k')});
+
+  const yoyData = data.filter(d=>d.yoyC!=null);
+  mkChart('yoyChart','bar',yoyData.map(d=>d.month.slice(5)),[{data:yoyData.map(d=>d.yoyC),backgroundColor:yoyData.map(d=>d.yoyC>=0?'rgba(16,185,129,0.6)':'rgba(239,68,68,0.6)'),borderColor:yoyData.map(d=>d.yoyC>=0?'#10b981':'#ef4444'),borderWidth:1.5,borderRadius:4}],{plugins:{legend:{display:false},tooltip:tipBase(c=>(c.raw>=0?'+':'')+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+}
+
+function filterPeriodCv(p,el) {
+  activePeriodCv=p;
+  document.querySelectorAll('#page-cv .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCv();
+}
+
+// ========== REPORT ==========
+function renderReport() {
+  const data = ALL;
+
+  // Highlight cards: last 3 months
+  const last3 = [...data].slice(-3).reverse();
+  const cardsEl = document.getElementById('reportMonthCards');
+  cardsEl.innerHTML = '';
+  last3.forEach(d=>{
+    const el = document.createElement('div');
+    el.className='card';
+    el.innerHTML=`
+      <div class="card-label">${d.month} サマリー</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="card-value-sm">${fmt(d.cost)}</div>
+        <div class="card-icon icon-purple" style="font-size:14px;">💰</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+        <div style="font-size:12px;color:#374151;">面談 <strong>${fmtN(d.meet)}</strong></div>
+        <div style="font-size:12px;color:#374151;">体験 <strong>${fmtN(d.exp)}</strong></div>
+        <div style="font-size:12px;color:#374151;">契約 <strong>${fmtN(d.cont)}</strong></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;">
+        契約CPA: <span class="${cc(d.contCpa)}" style="font-weight:600;">${fmt(d.contCpa)}</span>
+      </div>`;
+    cardsEl.appendChild(el);
+  });
+
+  const labels=data.map(d=>d.month.slice(5));
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('rptCostChart','line',labels,[{data:data.map(d=>d.cost),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:2,fill:true}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('rptCvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:2,fill:true},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:2,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  const tbody=document.getElementById('rptTableBody'); tbody.innerHTML='';
+  [...data].reverse().forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.exp)}</td><td class="${cc(d.expCpa)}">${fmt(d.expCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${d.yoyC==null?'muted':d.yoyC>=0?'pos':'neg'}">${d.yoyC==null?'—':(d.yoyC>=0?'+':'')+d.yoyC+'件'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ========== SETTINGS ==========
+function saveSettings() {
+  alert('設定を保存しました（このデモでは画面内のみに適用されます）');
+}
+
+function applyColor(color) {
+  document.querySelector('.sidebar').style.background = color;
+  document.querySelectorAll('.btn-primary').forEach(b=>b.style.background=color);
+  document.querySelectorAll('.chip-all').forEach(c=>{ c.style.color=color; c.style.borderColor=color; });
+}
+
+function exportCsv() {
+  const rows = [['Month','Cost','面談予約数','面談予約CPA','面談数','面談CPA','体験数','体験CPA','契約数','契約CPA','前年比契約数','前年比CPA']];
+  ALL.forEach(d=>rows.push([d.month,d.cost,d.appt,d.apptCpa??'',d.meet,d.meetCpa??'',d.exp,d.expCpa??'',d.cont??'',d.contCpa??'',d.yoyC??'',d.yoyCpa??'']));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='ad_performance.csv';
+  a.click();
+}
+
+// ========== INIT ==========
+buildChips('2025');
+render();
+</script>
+</body>
+</html>
