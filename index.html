@@ -333,6 +333,9 @@
   <div class="sidebar-item" onclick="showPage('cv',this)">👥 CV 詳細</div>
   <div class="sidebar-item" onclick="showPage('report',this)">📅 月次レポート</div>
   <div class="sidebar-item" onclick="showPage('settings',this)">⚙️ 設定</div>
+  <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
+  <div class="sidebar-item" onclick="showPage('weekly',this)">📊 週次レポート</div>
+  <div class="sidebar-item" onclick="showPage('biweekly',this)">🎯 改善プラン</div>
   <div style="margin-top:auto;padding:16px 12px 4px;border-top:1px solid rgba(255,255,255,0.15);">
     <div id="last-updated" style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;">未接続</div>
     <button class="reload-btn" onclick="reloadData()">🔄 データ再取得</button>
@@ -672,12 +675,103 @@
   </div>
 </div>
 
+
+<!-- ==================== PAGE: WEEKLY REPORT ==================== -->
+<div id="page-weekly" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>📊 週次レポート</h1></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" onclick="renderWeekly()">🔄 最新データで生成</button>
+      <button class="btn btn-primary" onclick="exportWeeklyPDF()">📄 PDF出力</button>
+    </div>
+  </div>
+
+  <!-- アラートバナー -->
+  <div id="weekly-alerts" style="margin-bottom:16px;"></div>
+
+  <!-- KPIカード -->
+  <div class="g g4" id="weekly-kpi-cards">
+    <div class="card"><div class="card-row"><div><div class="card-label">最新月 コスト</div><div class="card-value" id="w-cost">—</div><div class="card-sub" id="w-cost-diff">—</div></div><div class="card-icon icon-purple">💰</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">面談数</div><div class="card-value" id="w-meet">—</div><div class="card-sub" id="w-meet-diff">—</div></div><div class="card-icon icon-blue">👥</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">契約数</div><div class="card-value" id="w-cont">—</div><div class="card-sub" id="w-cont-diff">—</div></div><div class="card-icon icon-green">✅</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">契約CPA</div><div class="card-value" id="w-contcpa">—</div><div class="card-sub" id="w-contcpa-diff">—</div></div><div class="card-icon icon-orange">🎯</div></div></div>
+  </div>
+
+  <!-- 3ヶ月平均 -->
+  <div class="g g3e">
+    <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 コスト</div><div class="card-value" id="w-avg-cost">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 面談数</div><div class="card-value" id="w-avg-meet">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
+    <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 契約CPA</div><div class="card-value" id="w-avg-cpa">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
+  </div>
+
+  <!-- トレンドチャート -->
+  <div class="g g2">
+    <div class="chart-wrap">
+      <div class="chart-hd"><div><div class="chart-title">コスト推移（直近6ヶ月）</div></div></div>
+      <div style="position:relative;height:200px;"><canvas id="wCostChart"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-hd">
+        <div><div class="chart-title">CV推移（直近6ヶ月）</div></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="ldot" style="background:#7c3aed"></div>面談</div>
+          <div class="legend-item"><div class="ldot" style="background:#10b981"></div>契約</div>
+        </div>
+      </div>
+      <div style="position:relative;height:200px;"><canvas id="wCvChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 詳細テーブル -->
+  <div class="table-wrap">
+    <div class="table-hd"><div class="chart-title">月別詳細（直近6ヶ月）</div></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Month</th><th>Cost</th><th>面談数</th><th>面談CPA</th><th>契約数</th><th>契約CPA</th><th>前月比 Cost</th><th>ステータス</th></tr></thead>
+        <tbody id="weeklyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: BIWEEKLY PLAN ==================== -->
+<div id="page-biweekly" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><h1>🎯 改善プラン</h1></div>
+    <button class="btn btn-outline" onclick="renderBiweekly()">🔄 プランを再生成</button>
+  </div>
+
+  <!-- KPI目標 -->
+  <div class="section-title">📌 次の2週間のKPI目標</div>
+  <div class="g g4">
+    <div class="card" style="border-top:3px solid #10b981;"><div class="card-label">目標 面談CPA</div><div class="card-value" id="b-kpi-meetcpa" style="color:#10b981;">—</div><div class="card-sub">現状比 -10%</div></div>
+    <div class="card" style="border-top:3px solid #10b981;"><div class="card-label">目標 契約CPA</div><div class="card-value" id="b-kpi-contcpa" style="color:#10b981;">—</div><div class="card-sub">現状比 -10%</div></div>
+    <div class="card" style="border-top:3px solid #3b82f6;"><div class="card-label">目標 転換率</div><div class="card-value" id="b-kpi-conv" style="color:#3b82f6;">—</div><div class="card-sub">面談→契約</div></div>
+    <div class="card" style="border-top:3px solid #7c3aed;"><div class="card-label">目標 月間契約数</div><div class="card-value" id="b-kpi-cont" style="color:#7c3aed;">—</div><div class="card-sub">件</div></div>
+  </div>
+
+  <!-- 改善課題 -->
+  <div class="section-title">⚡ 改善課題（優先順位順）</div>
+  <div id="biweekly-issues"></div>
+
+  <!-- アクションカレンダー -->
+  <div class="section-title">📅 14日間 アクションカレンダー</div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th style="text-align:left;">期間</th><th style="text-align:left;">フェーズ</th><th style="text-align:left;">タスク</th></tr></thead>
+        <tbody id="biweeklyCalBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 </main>
 
 <script>
 // ========== GAS 接続設定 ==========
 // ▼ GASデプロイ後にURLをここに貼り付けると自動でスプレッドシートからデータ取得します
-const GAS_URL = 'YOUR_GAS_URL_HERE';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzi3QZSIo27aD3Y8gd_Tqa60n7Px0CvuK6wNRHckeRW8_9xST1WkI8Vpyi3nLeKhX25/exec';
 
 // ========== 初期データ（ハードコード）==========
 // GAS未接続時はこのデータを使用。接続後はスプレッドシートのデータで上書きされます。
@@ -804,6 +898,8 @@ function showPage(page, el, title) {
   if (page==='cost') renderCost();
   if (page==='cv') renderCv();
   if (page==='report') renderReport();
+  if (page==='weekly') renderWeekly();
+  if (page==='biweekly') renderBiweekly();
 }
 
 // ===== SIDEBAR TOGGLE =====
@@ -1044,6 +1140,157 @@ function exportCsv() {
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download='ad_performance.csv';
   a.click();
+}
+
+
+// ========== WEEKLY REPORT ==========
+function renderWeekly() {
+  const data = ALL.slice(-6);
+  if (!data.length) return;
+
+  const latest = data[data.length - 1];
+  const prev   = data.length >= 2 ? data[data.length - 2] : null;
+  const prev3  = data.slice(-4, -1);
+
+  const avgFn = (arr, key) => {
+    const v = arr.map(d=>d[key]).filter(x=>x!=null);
+    return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null;
+  };
+  const diffV = (a,b,k) => (a&&b&&a[k]!=null&&b[k]!=null) ? a[k]-b[k] : null;
+  const fmtDiff = (v, good='positive') => {
+    if (v==null) return '—';
+    const isGood = good==='positive' ? v>0 : v<0;
+    const color = isGood ? '#16a34a' : '#dc2626';
+    return `<span style="color:${color}">${v>0?'+':''}${v.toLocaleString()}</span>`;
+  };
+
+  // KPI cards
+  document.getElementById('w-cost').textContent = fmt(latest.cost);
+  document.getElementById('w-cost-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'cost'),'negative');
+  document.getElementById('w-meet').textContent = fmtN(latest.meet);
+  document.getElementById('w-meet-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'meet'),'positive');
+  document.getElementById('w-cont').textContent = fmtN(latest.cont);
+  document.getElementById('w-cont-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'cont'),'positive');
+  document.getElementById('w-contcpa').textContent = fmt(latest.contCpa);
+  document.getElementById('w-contcpa-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'contCpa'),'negative');
+
+  // 3ヶ月平均
+  document.getElementById('w-avg-cost').textContent = fmt(avgFn(prev3,'cost'));
+  document.getElementById('w-avg-meet').textContent = fmtN(avgFn(prev3,'meet'));
+  document.getElementById('w-avg-cpa').textContent  = fmt(avgFn(prev3,'contCpa'));
+
+  // アラート
+  const alerts = [];
+  if (latest.cost > 150000) alerts.push({level:'high', msg:`コスト上限超過: ${fmt(latest.cost)}`});
+  if (latest.contCpa && latest.contCpa > 30000) alerts.push({level:'high', msg:`契約CPA上限超過: ${fmt(latest.contCpa)}`});
+  if (!latest.cont) alerts.push({level:'medium', msg:'今月の契約数が0件です'});
+  const alertEl = document.getElementById('weekly-alerts');
+  if (alerts.length) {
+    alertEl.innerHTML = alerts.map(a=>`
+      <div style="background:${a.level==='high'?'#fee2e2':'#fef3c7'};border-left:4px solid ${a.level==='high'?'#dc2626':'#f59e0b'};padding:10px 16px;border-radius:8px;margin-bottom:8px;font-size:13px;">
+        ${a.level==='high'?'🚨':'⚠️'} ${a.msg}
+      </div>`).join('');
+  } else {
+    alertEl.innerHTML = '<div style="background:#dcfce7;border-left:4px solid #16a34a;padding:10px 16px;border-radius:8px;font-size:13px;">✅ 異常なし。良好な状態です。</div>';
+  }
+
+  // Charts
+  const labels = data.map(d=>d.month.slice(5));
+  const ks = scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('wCostChart','bar',labels,[{data:data.map(d=>d.cost),backgroundColor:data.map(d=>d.cost>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:data.map(d=>d.cost>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('wCvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:4,fill:true},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:4,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  // Table
+  const tbody = document.getElementById('weeklyTableBody');
+  tbody.innerHTML = '';
+  [...data].reverse().forEach((d,i,arr) => {
+    const p = arr[i+1];
+    const costDiff = p ? d.cost - p.cost : null;
+    const status = d.cost > 150000 ? '<span class="badge badge-red">高コスト</span>'
+                 : d.contCpa && d.contCpa > 30000 ? '<span class="badge badge-red">CPA高騰</span>'
+                 : d.cont > 5 ? '<span class="badge badge-green">好調</span>'
+                 : '<span class="badge badge-blue">通常</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${costDiff==null?'muted':costDiff>0?'neg':'pos'}">${costDiff==null?'—':(costDiff>0?'+':'')+fmt(costDiff).replace('¥','')}</td><td>${status}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportWeeklyPDF() { window.print(); }
+
+// ========== BIWEEKLY PLAN ==========
+function renderBiweekly() {
+  const data = ALL.slice(-6);
+  if (!data.length) return;
+
+  const latest   = data[data.length-1];
+  const avgFn = (arr,key) => { const v=arr.map(d=>d[key]).filter(x=>x!=null); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null; };
+
+  const totalMeet = data.reduce((s,d)=>s+(d.meet||0),0);
+  const totalCont = data.reduce((s,d)=>s+(d.cont||0),0);
+  const convRate  = totalMeet > 0 ? totalCont/totalMeet : 0;
+  const avgContCpa = avgFn(data,'contCpa');
+
+  // KPI targets
+  document.getElementById('b-kpi-meetcpa').textContent = fmt(Math.round((avgFn(data,'meetCpa')||20000)*0.9));
+  document.getElementById('b-kpi-contcpa').textContent = fmt(Math.round((avgContCpa||30000)*0.9));
+  document.getElementById('b-kpi-conv').textContent    = Math.min(50,Math.round(convRate*100)+10)+'%';
+  document.getElementById('b-kpi-cont').textContent    = Math.max((latest.cont||0)+2,5)+'件';
+
+  // Issues
+  const issues = [];
+  if (avgContCpa && latest.contCpa && latest.contCpa > avgContCpa*1.2) {
+    issues.push({p:1, cat:'CPA改善', title:'契約CPAの高騰', detail:`直近CPA ${fmt(latest.contCpa)} は6ヶ月平均 ${fmt(avgContCpa)} より高い状態です。`, actions:['ターゲティング設定の見直し','低パフォーマンスキーワード・広告セットの停止','LPのCVR改善（フォーム簡略化・CTA最適化）','目標CPA入札への切り替えを検討']});
+  }
+  if (convRate < 0.3 && totalMeet > 0) {
+    issues.push({p:2, cat:'転換率改善', title:`面談→契約転換率が低い（${Math.round(convRate*100)}%）`, detail:`直近6ヶ月：面談${totalMeet}件→契約${totalCont}件。目標30%に対し達成率${Math.round(convRate/0.3*100)}%。`, actions:['面談後フォローアップ（メール・LINE）の強化','商談トークスクリプトの見直し','体験への誘導率を上げる','高クロージング率担当者のノウハウ共有']});
+  }
+  const recentCost = data.slice(-2).reduce((s,d)=>s+(d.cost||0),0);
+  const prevCost   = data.slice(-4,-2).reduce((s,d)=>s+(d.cost||0),0);
+  const recentCont = data.slice(-2).reduce((s,d)=>s+(d.cont||0),0);
+  const prevCont   = data.slice(-4,-2).reduce((s,d)=>s+(d.cont||0),0);
+  if (prevCost > 0 && recentCost > prevCost*1.1 && recentCont <= prevCont) {
+    issues.push({p:2, cat:'予算効率化', title:'コスト増加にCV数が追いついていない', detail:`直近2ヶ月コストが前期比+${Math.round((recentCost/prevCost-1)*100)}%増加しているが契約数は横ばい。`, actions:['低効率媒体・キャンペーンの予算削減','高パフォーマンスチャネルへ集中','A/Bテストでクリエイティブ最適化','月次予算キャップの見直し']});
+  }
+  if (!issues.length) {
+    issues.push({p:1, cat:'継続改善', title:'現状維持・さらなる成長を目指す', detail:'大きな課題は検出されませんでした。引き続きパフォーマンスを維持・改善します。', actions:['新規チャネルの試験導入','リターゲティングの強化','口コミ・紹介施策の検討','コンテンツマーケティングの検討']});
+  }
+
+  const colors = ['#dc2626','#f59e0b','#3b82f6','#10b981'];
+  const bgColors = ['#fee2e2','#fef3c7','#dbeafe','#dcfce7'];
+  const issuesEl = document.getElementById('biweekly-issues');
+  issuesEl.innerHTML = issues.map((iss,i) => `
+    <div class="card" style="border-left:4px solid ${colors[Math.min(i,3)]};margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="background:${bgColors[Math.min(i,3)]};color:${colors[Math.min(i,3)]};padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;">優先度${iss.p}</span>
+        <span class="badge badge-gray">${iss.cat}</span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:#111827;margin-bottom:6px;">${iss.title}</div>
+      <div style="font-size:12.5px;color:#6b7280;margin-bottom:12px;">${iss.detail}</div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;">推奨アクション</div>
+        ${iss.actions.map((a,j)=>`<div style="font-size:12.5px;color:#374151;padding:4px 0;display:flex;gap:8px;"><span style="color:${colors[Math.min(i,3)]};font-weight:700;">${j+1}.</span>${a}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // Calendar
+  const cal = [
+    {day:'1〜3日目', phase:'分析', tasks:['データ収集・課題確認','前回施策の効果測定','優先順位の最終決定']},
+    {day:'4〜7日目', phase:'実行①', tasks:['優先度1の施策実施','A/Bテスト設定','低効率広告の停止・調整']},
+    {day:'8〜10日目', phase:'中間確認', tasks:['施策の初期効果確認','必要に応じて微調整','フォローアップ施策の準備']},
+    {day:'11〜14日目', phase:'実行②', tasks:['優先度2の施策実施','次回データ整理','KPI達成状況の確認']},
+  ];
+  const phaseColors = {'分析':'#7c3aed','実行①':'#2563eb','中間確認':'#f59e0b','実行②':'#10b981'};
+  const tbody = document.getElementById('biweeklyCalBody');
+  tbody.innerHTML = cal.map(c=>`
+    <tr>
+      <td style="text-align:left;font-weight:700;color:#374151;white-space:nowrap;">${c.day}</td>
+      <td style="text-align:left;"><span style="background:${phaseColors[c.phase]}22;color:${phaseColors[c.phase]};padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;">${c.phase}</span></td>
+      <td style="text-align:left;font-size:12.5px;color:#374151;">${c.tasks.join(' ／ ')}</td>
+    </tr>`).join('');
 }
 
 // ========== RELOAD ==========
