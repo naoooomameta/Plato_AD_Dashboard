@@ -176,6 +176,10 @@
   .progress-bar { height:6px; background:#f3f4f6; border-radius:3px; overflow:hidden; margin-top:8px; }
   .progress-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
 
+  /* ===== REPORT CARD ===== */
+  .report-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f3f4f6; }
+  .report-row:last-child { border-bottom:none; }
+
   @keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
   .card,.card-hero,.chart-wrap,.table-wrap,.settings-group { animation:fadeUp 0.3s ease both; }
 
@@ -245,25 +249,32 @@
   @media (max-width: 768px) {
     body { display:block; }
 
+    /* サイドバーをドロワー化 */
     .sidebar {
       position:fixed; top:0; left:-240px; width:240px; height:100vh;
       z-index:160; transition:left 0.25s ease; box-shadow:4px 0 20px rgba(0,0,0,0.15);
     }
     .sidebar.open { left:0; }
 
+    /* モバイルヘッダー表示 */
     .mobile-header { display:flex; }
+
+    /* ボトムナビ表示 */
     .bottom-nav { display:block; }
 
+    /* メインコンテンツ調整 */
     .main {
       padding:72px 16px 80px;
       min-height:100vh;
     }
 
+    /* トップバー調整 */
     .topbar { flex-wrap:wrap; gap:10px; margin-bottom:14px; }
     .topbar-left h1 { font-size:18px; }
     .period-tabs { width:100%; }
     .period-tab { flex:1; padding:7px 8px; font-size:12px; }
 
+    /* グリッド → 1〜2列 */
     .g3  { grid-template-columns:1fr; }
     .g4  { grid-template-columns:repeat(2,1fr); }
     .g3e { grid-template-columns:repeat(2,1fr); }
@@ -271,17 +282,22 @@
     .g2-1{ grid-template-columns:1fr; }
     .g1-2{ grid-template-columns:1fr; }
 
+    /* ヒーローカード */
     .hero-value { font-size:26px; }
     .card-value { font-size:20px; }
 
+    /* 月チップ */
     .month-filters { gap:6px; }
     .chip { padding:4px 10px; font-size:11px; }
 
+    /* テーブルは横スクロール */
     .table-wrap { border-radius:12px; }
 
+    /* 設定ページ */
     .settings-row { flex-wrap:wrap; gap:10px; }
     .text-input { width:100%; }
 
+    /* チャート高さ縮小 */
     .chart-wrap { padding:14px 14px; }
   }
 
@@ -659,6 +675,7 @@
   </div>
 </div>
 
+
 <!-- ==================== PAGE: WEEKLY REPORT ==================== -->
 <div id="page-weekly" class="page">
   <div class="topbar">
@@ -669,8 +686,10 @@
     </div>
   </div>
 
+  <!-- アラートバナー -->
   <div id="weekly-alerts" style="margin-bottom:16px;"></div>
 
+  <!-- KPIカード -->
   <div class="g g4" id="weekly-kpi-cards">
     <div class="card"><div class="card-row"><div><div class="card-label">最新月 コスト</div><div class="card-value" id="w-cost">—</div><div class="card-sub" id="w-cost-diff">—</div></div><div class="card-icon icon-purple">💰</div></div></div>
     <div class="card"><div class="card-row"><div><div class="card-label">面談数</div><div class="card-value" id="w-meet">—</div><div class="card-sub" id="w-meet-diff">—</div></div><div class="card-icon icon-blue">👥</div></div></div>
@@ -678,12 +697,14 @@
     <div class="card"><div class="card-row"><div><div class="card-label">契約CPA</div><div class="card-value" id="w-contcpa">—</div><div class="card-sub" id="w-contcpa-diff">—</div></div><div class="card-icon icon-orange">🎯</div></div></div>
   </div>
 
+  <!-- 3ヶ月平均 -->
   <div class="g g3e">
     <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 コスト</div><div class="card-value" id="w-avg-cost">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
     <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 面談数</div><div class="card-value" id="w-avg-meet">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
     <div class="card"><div class="card-row"><div><div class="card-label">3ヶ月平均 契約CPA</div><div class="card-value" id="w-avg-cpa">—</div></div><div class="card-icon icon-gray">📊</div></div></div>
   </div>
 
+  <!-- トレンドチャート -->
   <div class="g g2">
     <div class="chart-wrap">
       <div class="chart-hd"><div><div class="chart-title">コスト推移（直近6ヶ月）</div></div></div>
@@ -701,6 +722,7 @@
     </div>
   </div>
 
+  <!-- 詳細テーブル -->
   <div class="table-wrap">
     <div class="table-hd"><div class="chart-title">月別詳細（直近6ヶ月）</div></div>
     <div style="overflow-x:auto;">
@@ -719,6 +741,7 @@
     <button class="btn btn-outline" onclick="renderBiweekly()">🔄 プランを再生成</button>
   </div>
 
+  <!-- KPI目標 -->
   <div class="section-title">📌 次の2週間のKPI目標</div>
   <div class="g g4">
     <div class="card" style="border-top:3px solid #10b981;"><div class="card-label">目標 面談CPA</div><div class="card-value" id="b-kpi-meetcpa" style="color:#10b981;">—</div><div class="card-sub">現状比 -10%</div></div>
@@ -727,9 +750,11 @@
     <div class="card" style="border-top:3px solid #7c3aed;"><div class="card-label">目標 月間契約数</div><div class="card-value" id="b-kpi-cont" style="color:#7c3aed;">—</div><div class="card-sub">件</div></div>
   </div>
 
+  <!-- 改善課題 -->
   <div class="section-title">⚡ 改善課題（優先順位順）</div>
   <div id="biweekly-issues"></div>
 
+  <!-- アクションカレンダー -->
   <div class="section-title">📅 14日間 アクションカレンダー</div>
   <div class="table-wrap">
     <div style="overflow-x:auto;">
@@ -743,6 +768,556 @@
 
 </main>
 
+<script>
+// ========== GAS 接続設定 ==========
+// ▼ GASデプロイ後にURLをここに貼り付けると自動でスプレッドシートからデータ取得します
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzi3QZSIo27aD3Y8gd_Tqa60n7Px0CvuK6wNRHckeRW8_9xST1WkI8Vpyi3nLeKhX25/exec';
+
+// ========== 初期データ（ハードコード）==========
+// GAS未接続時はこのデータを使用。接続後はスプレッドシートのデータで上書きされます。
+const FALLBACK_DATA = [
+  {month:'2024/05',cost:19216,  appt:1, apptCpa:19216, meet:1, meetCpa:19216, exp:1, expCpa:19216, cont:1, contCpa:19216, yoyC:null, yoyCpa:null},
+  {month:'2024/06',cost:40513,  appt:0, apptCpa:null,  meet:0, meetCpa:null,  exp:0, expCpa:null,  cont:0, contCpa:null,  yoyC:null, yoyCpa:null},
+  {month:'2024/07',cost:54873,  appt:1, apptCpa:54873, meet:1, meetCpa:54873, exp:1, expCpa:54873, cont:1, contCpa:54873, yoyC:null, yoyCpa:null},
+  {month:'2024/08',cost:61692,  appt:2, apptCpa:30846, meet:2, meetCpa:30846, exp:2, expCpa:30846, cont:2, contCpa:30846, yoyC:null, yoyCpa:null},
+  {month:'2024/09',cost:66618,  appt:1, apptCpa:66618, meet:1, meetCpa:66618, exp:1, expCpa:66618, cont:1, contCpa:66618, yoyC:null, yoyCpa:null},
+  {month:'2024/10',cost:72559,  appt:3, apptCpa:24186, meet:3, meetCpa:24186, exp:3, expCpa:24186, cont:3, contCpa:24186, yoyC:null, yoyCpa:null},
+  {month:'2024/11',cost:108615, appt:5, apptCpa:21723, meet:5, meetCpa:21723, exp:5, expCpa:21723, cont:5, contCpa:21723, yoyC:null, yoyCpa:null},
+  {month:'2024/12',cost:92780,  appt:4, apptCpa:23195, meet:4, meetCpa:23195, exp:4, expCpa:23195, cont:4, contCpa:23195, yoyC:null, yoyCpa:null},
+  {month:'2025/01',cost:93335,  appt:5, apptCpa:18667, meet:5, meetCpa:18667, exp:5, expCpa:18667, cont:5, contCpa:18667, yoyC:null, yoyCpa:null},
+  {month:'2025/02',cost:99475,  appt:4, apptCpa:24869, meet:4, meetCpa:24869, exp:4, expCpa:24869, cont:4, contCpa:24869, yoyC:null, yoyCpa:null},
+  {month:'2025/03',cost:98409,  appt:7, apptCpa:14058, meet:7, meetCpa:14058, exp:6, expCpa:16402, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/04',cost:64672,  appt:6, apptCpa:10779, meet:9, meetCpa:10779, exp:6, expCpa:10779, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
+  {month:'2025/05',cost:85107,  appt:1, apptCpa:85107, meet:1, meetCpa:85107, exp:1, expCpa:85107, cont:1, contCpa:85107, yoyC:0,    yoyCpa:65891},
+  {month:'2025/06',cost:53098,  appt:3, apptCpa:17699, meet:3, meetCpa:17699, exp:3, expCpa:17699, cont:3, contCpa:17699, yoyC:null, yoyCpa:null},
+  {month:'2025/07',cost:81776,  appt:5, apptCpa:16355, meet:4, meetCpa:20444, exp:3, expCpa:27259, cont:2, contCpa:null,  yoyC:null, yoyCpa:27614},
+  {month:'2025/08',cost:83795,  appt:7, apptCpa:11971, meet:7, meetCpa:11971, exp:2, expCpa:41898, cont:0, contCpa:11052, yoyC:null, yoyCpa:null},
+  {month:'2025/09',cost:114052, appt:9, apptCpa:12672, meet:7, meetCpa:16293, exp:1, expCpa:114052,cont:0, contCpa:47434, yoyC:null, yoyCpa:null},
+  {month:'2025/10',cost:126404, appt:10,apptCpa:12640, meet:9, meetCpa:14045, exp:5, expCpa:25281, cont:2, contCpa:1094,  yoyC:null, yoyCpa:null},
+  {month:'2025/11',cost:120186, appt:9, apptCpa:13354, meet:9, meetCpa:13354, exp:6, expCpa:20031, cont:7, contCpa:17169, yoyC:2,    yoyCpa:-4554},
+  {month:'2025/12',cost:193622, appt:15,apptCpa:12908, meet:13,meetCpa:14894, exp:10,expCpa:19362, cont:10,contCpa:19362, yoyC:6,    yoyCpa:-3833},
+  {month:'2026/01',cost:96481,  appt:13,apptCpa:7422,  meet:11,meetCpa:8771,  exp:6, expCpa:16080, cont:6, contCpa:16080, yoyC:1,    yoyCpa:-2587},
+  {month:'2026/02',cost:144862, appt:8, apptCpa:18108, meet:5, meetCpa:28972, exp:3, expCpa:48287, cont:3, contCpa:48287, yoyC:-1,   yoyCpa:23419},
+];
+
+let ALL = [...FALLBACK_DATA]; // 初期表示はハードコードデータを使用
+
+async function loadFromGAS() {
+  // GAS URLが未設定の場合はスキップ（ハードコードデータをそのまま使用）
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
+    document.getElementById('last-updated').textContent = 'ローカルデータ表示中';
+    return true;
+  }
+  showLoading(true);
+  try {
+    const res = await fetch(GAS_URL);
+    if (!res.ok) throw new Error('HTTPエラー: ' + res.status);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    ALL = json.data; // スプレッドシートのデータで上書き
+    showLoading(false);
+    showLastUpdated(json.updated);
+    return true;
+  } catch(err) {
+    showLoading(false);
+    showError('GAS接続エラー（ローカルデータで表示中）: ' + err.message);
+    return true; // エラーでもハードコードデータで続行
+  }
+}
+
+function showLoading(on) {
+  document.getElementById('loading-banner').style.display = on ? 'flex' : 'none';
+}
+function showLastUpdated(iso) {
+  if (!iso) return;
+  const d = new Date(iso);
+  const s = d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-updated').textContent = '最終更新: ' + s;
+}
+function showError(msg) {
+  const el = document.getElementById('error-banner');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
+}
+
+const fmt = v => v==null ? '—' : '¥'+v.toLocaleString();
+const fmtN = v => v==null ? '—' : v+'件';
+const avg = arr => { const v=arr.filter(x=>x!=null); return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null; };
+const cc = v => v==null?'muted':v<15000?'cpa-low':v<30000?'cpa-mid':'cpa-high';
+
+let charts = {};
+let activePeriod='2025', activeMonth=null;
+let activePeriodCost='2025', activePeriodCv='2025';
+
+const filterData = (period) => period==='all' ? ALL : ALL.filter(d=>d.month.startsWith(period));
+const getFiltered = () => {
+  let d = filterData(activePeriod);
+  if (activeMonth) d = d.filter(r=>r.month===activeMonth);
+  return d;
+};
+
+const tipBase = (label) => ({
+  backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',cornerRadius:8,callbacks:{label}
+});
+const scaleXY = (yFmt) => ({
+  x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},
+  y:{ticks:{color:'#9ca3af',font:{size:10},callback:yFmt},grid:{color:'#f3f4f6'}}
+});
+
+function mkChart(id,type,labels,datasets,opts={}) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,...opts}});
+}
+
+// ========== PAGE NAVIGATION ==========
+function showPage(page, el, title) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+
+  // サイドバー側のアクティブ
+  if (el) el.classList.add('active');
+
+  // ボトムナビのアクティブ
+  const bnav = document.getElementById('bnav-'+page);
+  if (bnav) bnav.classList.add('active');
+
+  // モバイルタイトル更新
+  const titles = {dashboard:'ダッシュボード',cost:'コスト分析',cv:'CV詳細',report:'月次レポート',settings:'設定'};
+  document.getElementById('mobilePageTitle').textContent = title || titles[page] || '';
+
+  // サイドバーを閉じる（スマホ時）
+  closeSidebar();
+
+  // ページ先頭にスクロール
+  document.querySelector('.main').scrollTop = 0;
+
+  if (page==='dashboard') render();
+  if (page==='cost') renderCost();
+  if (page==='cv') renderCv();
+  if (page==='report') renderReport();
+  if (page==='weekly') renderWeekly();
+  if (page==='biweekly') renderBiweekly();
+}
+
+// ===== SIDEBAR TOGGLE =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ========== DASHBOARD ==========
+function render() {
+  const data = getFiltered();
+  // KPIs
+  document.getElementById('totalCost').textContent = '¥'+data.reduce((s,d)=>s+d.cost,0).toLocaleString();
+  const last = [...data].reverse().find(d=>d.cost);
+  if(last){
+    document.getElementById('latestCost').textContent=fmt(last.cost);
+    document.getElementById('latestMonth').textContent=last.month;
+    document.getElementById('latestMeetCpa').textContent=fmt(last.meetCpa);
+    document.getElementById('latestMeetN').textContent='面談数: '+fmtN(last.meet);
+  }
+  document.getElementById('totalMeet').textContent=data.reduce((s,d)=>s+(d.meet||0),0)+'件';
+  document.getElementById('totalExp').textContent=data.reduce((s,d)=>s+(d.exp||0),0)+'件';
+  document.getElementById('totalCont').textContent=data.reduce((s,d)=>s+(d.cont||0),0)+'件';
+  const best=data.filter(d=>d.contCpa).reduce((b,d)=>(!b||d.contCpa<b.contCpa)?d:b,null);
+  if(best){document.getElementById('bestCpa').textContent=fmt(best.contCpa);document.getElementById('bestCpaMonth').textContent=best.month;}
+  document.getElementById('avgApptCpa').textContent=fmt(avg(data.map(d=>d.apptCpa)));
+  document.getElementById('avgExpCpa').textContent=fmt(avg(data.map(d=>d.expCpa)));
+  document.getElementById('avgContCpa').textContent=fmt(avg(data.map(d=>d.contCpa)));
+  // Charts
+  const labels=data.map(d=>d.month.slice(5));
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('costChart','bar',labels,[{data:data.map(d=>d.cost),backgroundColor:data.map(d=>d.cost>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:data.map(d=>d.cost>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('cvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true},
+    {label:'体験',data:data.map(d=>d.exp), borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.08)', tension:0.4,pointRadius:3,fill:false},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:3,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+  const mkCpa=(id,key,color)=>mkChart(id,'line',labels,[{data:data.map(d=>d[key]),borderColor:color,backgroundColor:color.replace(')',',0.08)').replace('rgb','rgba'),tension:0.4,pointRadius:2,fill:true,spanGaps:false}],{plugins:{legend:{display:false},tooltip:tipBase(c=>fmt(c.raw))},scales:{x:{ticks:{color:'#9ca3af',font:{size:9}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:9},callback:v=>'¥'+(v/1000).toFixed(0)+'k'},grid:{color:'#f3f4f6'}}}});
+  mkCpa('cpa1','meetCpa','rgb(124,58,237)');
+  mkCpa('cpa2','expCpa','rgb(6,182,212)');
+  mkCpa('cpa3','contCpa','rgb(16,185,129)');
+  // Table
+  const tbody=document.getElementById('tableBody');
+  tbody.innerHTML='';
+  [...data].reverse().forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.appt)}</td><td class="${cc(d.apptCpa)}">${fmt(d.apptCpa)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.exp)}</td><td class="${cc(d.expCpa)}">${fmt(d.expCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${d.yoyC==null?'muted':d.yoyC>=0?'pos':'neg'}">${d.yoyC==null?'—':(d.yoyC>=0?'+':'')+d.yoyC+'件'}</td><td class="${d.yoyCpa==null?'muted':d.yoyCpa<=0?'pos':'neg'}">${d.yoyCpa==null?'—':(d.yoyCpa>=0?'+':'')+fmt(d.yoyCpa).replace('¥','')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildChips(period) {
+  const c=document.getElementById('monthChips'); c.innerHTML='';
+  const all=document.createElement('div');
+  all.className='chip chip-all'; all.textContent='すべて';
+  all.onclick=()=>{activeMonth=null;render();buildChips(period);};
+  c.appendChild(all);
+  const months=period==='all'?ALL.map(d=>d.month):ALL.filter(d=>d.month.startsWith(period)).map(d=>d.month);
+  months.forEach(m=>{
+    const chip=document.createElement('div');
+    chip.className='chip chip-month'+(activeMonth===m?' active':'');
+    chip.textContent=m;
+    chip.onclick=()=>{activeMonth=m;document.querySelectorAll('.chip-month').forEach(c=>c.classList.remove('active'));chip.classList.add('active');render();};
+    c.appendChild(chip);
+  });
+}
+
+function filterPeriod(p,el) {
+  activePeriod=p; activeMonth=null;
+  document.querySelectorAll('#page-dashboard .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  buildChips(p); render();
+}
+
+// ========== COST ==========
+function renderCost() {
+  const data = filterData(activePeriodCost);
+  const labels = data.map(d=>d.month.slice(5));
+  const costs = data.map(d=>d.cost);
+  const total = costs.reduce((a,b)=>a+b,0);
+  const avgC = Math.round(total/costs.length);
+  const maxD = data.reduce((b,d)=>d.cost>b.cost?d:b);
+  const minD = data.reduce((b,d)=>d.cost<b.cost?d:b);
+
+  document.getElementById('c-total').textContent = fmt(total);
+  document.getElementById('c-avg').textContent = fmt(avgC);
+  document.getElementById('c-max').textContent = fmt(maxD.cost);
+  document.getElementById('c-max-m').textContent = maxD.month;
+  document.getElementById('c-min').textContent = fmt(minD.cost);
+  document.getElementById('c-min-m').textContent = minD.month;
+
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('costBar2','bar',labels,[{data:costs,backgroundColor:costs.map(c=>c>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:costs.map(c=>c>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+
+  // Distribution donut
+  const bins = [0,0,0,0]; // <50k, 50-100k, 100-150k, 150k+
+  costs.forEach(c=>{ if(c<50000)bins[0]++; else if(c<100000)bins[1]++; else if(c<150000)bins[2]++; else bins[3]++; });
+  mkChart('costDist','doughnut',['〜5万','5〜10万','10〜15万','15万〜'],[{data:bins,backgroundColor:['#a78bfa','#7c3aed','#f59e0b','#ef4444'],borderWidth:0}],{plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b7280',font:{size:11}}},tooltip:tipBase(c=>c.raw+'ヶ月')},cutout:'60%'});
+
+  mkChart('costLine','line',labels,[{data:costs,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+
+  // Table
+  const tbody=document.getElementById('costTableBody'); tbody.innerHTML='';
+  [...data].reverse().forEach((d,i,arr)=>{
+    const prev = arr[i+1];
+    const diff = prev ? d.cost-prev.cost : null;
+    const vsAvg = d.cost - avgC;
+    let badge = '';
+    if(d.cost>150000) badge='<span class="badge badge-red">高コスト</span>';
+    else if(d.cost<70000) badge='<span class="badge badge-green">低コスト</span>';
+    else badge='<span class="badge badge-blue">通常</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td class="${diff==null?'muted':diff>0?'neg':'pos'}">${diff==null?'—':(diff>0?'+':'')+fmt(diff).replace('¥','')}</td><td class="${vsAvg>0?'neg':'pos'}">${vsAvg>0?'+':''+''}${fmt(vsAvg).replace('¥','')}</td><td>${badge}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterPeriodCost(p,el) {
+  activePeriodCost=p;
+  document.querySelectorAll('#page-cost .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCost();
+}
+
+// ========== CV ==========
+function renderCv() {
+  const data = filterData(activePeriodCv);
+  const labels = data.map(d=>d.month.slice(5));
+  const totalMeet = data.reduce((s,d)=>s+(d.meet||0),0);
+  const totalExp  = data.reduce((s,d)=>s+(d.exp||0),0);
+  const totalCont = data.reduce((s,d)=>s+(d.cont||0),0);
+  const maxMeet = Math.max(...data.map(d=>d.meet||0));
+
+  document.getElementById('cv-meet').textContent = totalMeet+'件';
+  document.getElementById('cv-exp').textContent = totalExp+'件';
+  document.getElementById('cv-cont').textContent = totalCont+'件';
+  setTimeout(()=>{
+    document.getElementById('cv-meet-bar').style.width='100%';
+    document.getElementById('cv-exp-bar').style.width=(totalMeet>0?totalExp/totalMeet*100:0)+'%';
+    document.getElementById('cv-cont-bar').style.width=(totalMeet>0?totalCont/totalMeet*100:0)+'%';
+  },100);
+
+  const r1 = totalMeet>0 ? (totalExp/totalMeet*100).toFixed(1)+'%' : '—';
+  const r2 = totalExp>0  ? (totalCont/totalExp*100).toFixed(1)+'%' : '—';
+  const r3 = totalMeet>0 ? (totalCont/totalMeet*100).toFixed(1)+'%' : '—';
+  document.getElementById('cv-r1').textContent = r1;
+  document.getElementById('cv-r2').textContent = r2;
+  document.getElementById('cv-r3').textContent = r3;
+
+  mkChart('cvLine','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true},
+    {label:'体験',data:data.map(d=>d.exp), borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.06)', tension:0.4,pointRadius:3,fill:false},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.06)',tension:0.4,pointRadius:3,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  mkChart('cvFunnel','bar',['面談予約','面談','体験','契約'],[{data:[data.reduce((s,d)=>s+(d.appt||0),0),totalMeet,totalExp,totalCont],backgroundColor:['rgba(167,139,250,0.7)','rgba(124,58,237,0.7)','rgba(6,182,212,0.7)','rgba(16,185,129,0.7)'],borderColor:['#a78bfa','#7c3aed','#06b6d4','#10b981'],borderWidth:1.5,borderRadius:6}],{indexAxis:'y',plugins:{legend:{display:false},tooltip:tipBase(c=>c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{display:false}}}});
+
+  mkChart('cpaCompare','line',labels,[
+    {label:'面談CPA',data:data.map(d=>d.meetCpa),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.05)',tension:0.4,pointRadius:3,fill:false,spanGaps:false},
+    {label:'契約CPA',data:data.map(d=>d.contCpa),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.05)',tension:0.4,pointRadius:3,fill:false,spanGaps:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+fmt(c.raw))},scales:scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k')});
+
+  const yoyData = data.filter(d=>d.yoyC!=null);
+  mkChart('yoyChart','bar',yoyData.map(d=>d.month.slice(5)),[{data:yoyData.map(d=>d.yoyC),backgroundColor:yoyData.map(d=>d.yoyC>=0?'rgba(16,185,129,0.6)':'rgba(239,68,68,0.6)'),borderColor:yoyData.map(d=>d.yoyC>=0?'#10b981':'#ef4444'),borderWidth:1.5,borderRadius:4}],{plugins:{legend:{display:false},tooltip:tipBase(c=>(c.raw>=0?'+':'')+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+}
+
+function filterPeriodCv(p,el) {
+  activePeriodCv=p;
+  document.querySelectorAll('#page-cv .period-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCv();
+}
+
+// ========== REPORT ==========
+function renderReport() {
+  const data = ALL;
+
+  // Highlight cards: last 3 months
+  const last3 = [...data].slice(-3).reverse();
+  const cardsEl = document.getElementById('reportMonthCards');
+  cardsEl.innerHTML = '';
+  last3.forEach(d=>{
+    const el = document.createElement('div');
+    el.className='card';
+    el.innerHTML=`
+      <div class="card-label">${d.month} サマリー</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="card-value-sm">${fmt(d.cost)}</div>
+        <div class="card-icon icon-purple" style="font-size:14px;">💰</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+        <div style="font-size:12px;color:#374151;">面談 <strong>${fmtN(d.meet)}</strong></div>
+        <div style="font-size:12px;color:#374151;">体験 <strong>${fmtN(d.exp)}</strong></div>
+        <div style="font-size:12px;color:#374151;">契約 <strong>${fmtN(d.cont)}</strong></div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;">
+        契約CPA: <span class="${cc(d.contCpa)}" style="font-weight:600;">${fmt(d.contCpa)}</span>
+      </div>`;
+    cardsEl.appendChild(el);
+  });
+
+  const labels=data.map(d=>d.month.slice(5));
+  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('rptCostChart','line',labels,[{data:data.map(d=>d.cost),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:2,fill:true}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('rptCvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:2,fill:true},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:2,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  const tbody=document.getElementById('rptTableBody'); tbody.innerHTML='';
+  [...data].reverse().forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.exp)}</td><td class="${cc(d.expCpa)}">${fmt(d.expCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${d.yoyC==null?'muted':d.yoyC>=0?'pos':'neg'}">${d.yoyC==null?'—':(d.yoyC>=0?'+':'')+d.yoyC+'件'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ========== SETTINGS ==========
+function saveSettings() {
+  alert('設定を保存しました（このデモでは画面内のみに適用されます）');
+}
+
+function applyColor(color) {
+  document.querySelector('.sidebar').style.background = color;
+  document.querySelectorAll('.btn-primary').forEach(b=>b.style.background=color);
+  document.querySelectorAll('.chip-all').forEach(c=>{ c.style.color=color; c.style.borderColor=color; });
+}
+
+function exportCsv() {
+  const rows = [['Month','Cost','面談予約数','面談予約CPA','面談数','面談CPA','体験数','体験CPA','契約数','契約CPA','前年比契約数','前年比CPA']];
+  ALL.forEach(d=>rows.push([d.month,d.cost,d.appt,d.apptCpa??'',d.meet,d.meetCpa??'',d.exp,d.expCpa??'',d.cont??'',d.contCpa??'',d.yoyC??'',d.yoyCpa??'']));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='ad_performance.csv';
+  a.click();
+}
+
+
+// ========== WEEKLY REPORT ==========
+function renderWeekly() {
+  const data = ALL.slice(-6);
+  if (!data.length) return;
+
+  const latest = data[data.length - 1];
+  const prev   = data.length >= 2 ? data[data.length - 2] : null;
+  const prev3  = data.slice(-4, -1);
+
+  const avgFn = (arr, key) => {
+    const v = arr.map(d=>d[key]).filter(x=>x!=null);
+    return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null;
+  };
+  const diffV = (a,b,k) => (a&&b&&a[k]!=null&&b[k]!=null) ? a[k]-b[k] : null;
+  const fmtDiff = (v, good='positive') => {
+    if (v==null) return '—';
+    const isGood = good==='positive' ? v>0 : v<0;
+    const color = isGood ? '#16a34a' : '#dc2626';
+    return `<span style="color:${color}">${v>0?'+':''}${v.toLocaleString()}</span>`;
+  };
+
+  // KPI cards
+  document.getElementById('w-cost').textContent = fmt(latest.cost);
+  document.getElementById('w-cost-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'cost'),'negative');
+  document.getElementById('w-meet').textContent = fmtN(latest.meet);
+  document.getElementById('w-meet-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'meet'),'positive');
+  document.getElementById('w-cont').textContent = fmtN(latest.cont);
+  document.getElementById('w-cont-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'cont'),'positive');
+  document.getElementById('w-contcpa').textContent = fmt(latest.contCpa);
+  document.getElementById('w-contcpa-diff').innerHTML = '前月比: ' + fmtDiff(diffV(latest,prev,'contCpa'),'negative');
+
+  // 3ヶ月平均
+  document.getElementById('w-avg-cost').textContent = fmt(avgFn(prev3,'cost'));
+  document.getElementById('w-avg-meet').textContent = fmtN(avgFn(prev3,'meet'));
+  document.getElementById('w-avg-cpa').textContent  = fmt(avgFn(prev3,'contCpa'));
+
+  // アラート
+  const alerts = [];
+  if (latest.cost > 150000) alerts.push({level:'high', msg:`コスト上限超過: ${fmt(latest.cost)}`});
+  if (latest.contCpa && latest.contCpa > 30000) alerts.push({level:'high', msg:`契約CPA上限超過: ${fmt(latest.contCpa)}`});
+  if (!latest.cont) alerts.push({level:'medium', msg:'今月の契約数が0件です'});
+  const alertEl = document.getElementById('weekly-alerts');
+  if (alerts.length) {
+    alertEl.innerHTML = alerts.map(a=>`
+      <div style="background:${a.level==='high'?'#fee2e2':'#fef3c7'};border-left:4px solid ${a.level==='high'?'#dc2626':'#f59e0b'};padding:10px 16px;border-radius:8px;margin-bottom:8px;font-size:13px;">
+        ${a.level==='high'?'🚨':'⚠️'} ${a.msg}
+      </div>`).join('');
+  } else {
+    alertEl.innerHTML = '<div style="background:#dcfce7;border-left:4px solid #16a34a;padding:10px 16px;border-radius:8px;font-size:13px;">✅ 異常なし。良好な状態です。</div>';
+  }
+
+  // Charts
+  const labels = data.map(d=>d.month.slice(5));
+  const ks = scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
+  mkChart('wCostChart','bar',labels,[{data:data.map(d=>d.cost),backgroundColor:data.map(d=>d.cost>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:data.map(d=>d.cost>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
+  mkChart('wCvChart','line',labels,[
+    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:4,fill:true},
+    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:4,fill:false},
+  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
+
+  // Table
+  const tbody = document.getElementById('weeklyTableBody');
+  tbody.innerHTML = '';
+  [...data].reverse().forEach((d,i,arr) => {
+    const p = arr[i+1];
+    const costDiff = p ? d.cost - p.cost : null;
+    const status = d.cost > 150000 ? '<span class="badge badge-red">高コスト</span>'
+                 : d.contCpa && d.contCpa > 30000 ? '<span class="badge badge-red">CPA高騰</span>'
+                 : d.cont > 5 ? '<span class="badge badge-green">好調</span>'
+                 : '<span class="badge badge-blue">通常</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${costDiff==null?'muted':costDiff>0?'neg':'pos'}">${costDiff==null?'—':(costDiff>0?'+':'')+fmt(costDiff).replace('¥','')}</td><td>${status}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function exportWeeklyPDF() { window.print(); }
+
+// ========== BIWEEKLY PLAN ==========
+function renderBiweekly() {
+  const data = ALL.slice(-6);
+  if (!data.length) return;
+
+  const latest   = data[data.length-1];
+  const avgFn = (arr,key) => { const v=arr.map(d=>d[key]).filter(x=>x!=null); return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null; };
+
+  const totalMeet = data.reduce((s,d)=>s+(d.meet||0),0);
+  const totalCont = data.reduce((s,d)=>s+(d.cont||0),0);
+  const convRate  = totalMeet > 0 ? totalCont/totalMeet : 0;
+  const avgContCpa = avgFn(data,'contCpa');
+
+  // KPI targets
+  document.getElementById('b-kpi-meetcpa').textContent = fmt(Math.round((avgFn(data,'meetCpa')||20000)*0.9));
+  document.getElementById('b-kpi-contcpa').textContent = fmt(Math.round((avgContCpa||30000)*0.9));
+  document.getElementById('b-kpi-conv').textContent    = Math.min(50,Math.round(convRate*100)+10)+'%';
+  document.getElementById('b-kpi-cont').textContent    = Math.max((latest.cont||0)+2,5)+'件';
+
+  // Issues
+  const issues = [];
+  if (avgContCpa && latest.contCpa && latest.contCpa > avgContCpa*1.2) {
+    issues.push({p:1, cat:'CPA改善', title:'契約CPAの高騰', detail:`直近CPA ${fmt(latest.contCpa)} は6ヶ月平均 ${fmt(avgContCpa)} より高い状態です。`, actions:['ターゲティング設定の見直し','低パフォーマンスキーワード・広告セットの停止','LPのCVR改善（フォーム簡略化・CTA最適化）','目標CPA入札への切り替えを検討']});
+  }
+  if (convRate < 0.3 && totalMeet > 0) {
+    issues.push({p:2, cat:'転換率改善', title:`面談→契約転換率が低い（${Math.round(convRate*100)}%）`, detail:`直近6ヶ月：面談${totalMeet}件→契約${totalCont}件。目標30%に対し達成率${Math.round(convRate/0.3*100)}%。`, actions:['面談後フォローアップ（メール・LINE）の強化','商談トークスクリプトの見直し','体験への誘導率を上げる','高クロージング率担当者のノウハウ共有']});
+  }
+  const recentCost = data.slice(-2).reduce((s,d)=>s+(d.cost||0),0);
+  const prevCost   = data.slice(-4,-2).reduce((s,d)=>s+(d.cost||0),0);
+  const recentCont = data.slice(-2).reduce((s,d)=>s+(d.cont||0),0);
+  const prevCont   = data.slice(-4,-2).reduce((s,d)=>s+(d.cont||0),0);
+  if (prevCost > 0 && recentCost > prevCost*1.1 && recentCont <= prevCont) {
+    issues.push({p:2, cat:'予算効率化', title:'コスト増加にCV数が追いついていない', detail:`直近2ヶ月コストが前期比+${Math.round((recentCost/prevCost-1)*100)}%増加しているが契約数は横ばい。`, actions:['低効率媒体・キャンペーンの予算削減','高パフォーマンスチャネルへ集中','A/Bテストでクリエイティブ最適化','月次予算キャップの見直し']});
+  }
+  if (!issues.length) {
+    issues.push({p:1, cat:'継続改善', title:'現状維持・さらなる成長を目指す', detail:'大きな課題は検出されませんでした。引き続きパフォーマンスを維持・改善します。', actions:['新規チャネルの試験導入','リターゲティングの強化','口コミ・紹介施策の検討','コンテンツマーケティングの検討']});
+  }
+
+  const colors = ['#dc2626','#f59e0b','#3b82f6','#10b981'];
+  const bgColors = ['#fee2e2','#fef3c7','#dbeafe','#dcfce7'];
+  const issuesEl = document.getElementById('biweekly-issues');
+  issuesEl.innerHTML = issues.map((iss,i) => `
+    <div class="card" style="border-left:4px solid ${colors[Math.min(i,3)]};margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="background:${bgColors[Math.min(i,3)]};color:${colors[Math.min(i,3)]};padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;">優先度${iss.p}</span>
+        <span class="badge badge-gray">${iss.cat}</span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:#111827;margin-bottom:6px;">${iss.title}</div>
+      <div style="font-size:12.5px;color:#6b7280;margin-bottom:12px;">${iss.detail}</div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;">
+        <div style="font-size:11.5px;font-weight:700;color:#374151;margin-bottom:8px;">推奨アクション</div>
+        ${iss.actions.map((a,j)=>`<div style="font-size:12.5px;color:#374151;padding:4px 0;display:flex;gap:8px;"><span style="color:${colors[Math.min(i,3)]};font-weight:700;">${j+1}.</span>${a}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // Calendar
+  const cal = [
+    {day:'1〜3日目', phase:'分析', tasks:['データ収集・課題確認','前回施策の効果測定','優先順位の最終決定']},
+    {day:'4〜7日目', phase:'実行①', tasks:['優先度1の施策実施','A/Bテスト設定','低効率広告の停止・調整']},
+    {day:'8〜10日目', phase:'中間確認', tasks:['施策の初期効果確認','必要に応じて微調整','フォローアップ施策の準備']},
+    {day:'11〜14日目', phase:'実行②', tasks:['優先度2の施策実施','次回データ整理','KPI達成状況の確認']},
+  ];
+  const phaseColors = {'分析':'#7c3aed','実行①':'#2563eb','中間確認':'#f59e0b','実行②':'#10b981'};
+  const tbody = document.getElementById('biweeklyCalBody');
+  tbody.innerHTML = cal.map(c=>`
+    <tr>
+      <td style="text-align:left;font-weight:700;color:#374151;white-space:nowrap;">${c.day}</td>
+      <td style="text-align:left;"><span style="background:${phaseColors[c.phase]}22;color:${phaseColors[c.phase]};padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;">${c.phase}</span></td>
+      <td style="text-align:left;font-size:12.5px;color:#374151;">${c.tasks.join(' ／ ')}</td>
+    </tr>`).join('');
+}
+
+// ========== RELOAD ==========
+async function reloadData() {
+  const ok = await loadFromGAS();
+  if (ok) {
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+      const id = activePage.id.replace('page-', '');
+      if (id === 'dashboard') { buildChips(activePeriod); render(); }
+      if (id === 'cost') renderCost();
+      if (id === 'cv') renderCv();
+      if (id === 'report') renderReport();
+    }
+  }
+}
+
+// ========== INIT ==========
+async function init() {
+  const ok = await loadFromGAS();
+  if (ok) {
+    buildChips('2025');
+    render();
+  }
+}
+init();
+</script>
 <!-- Bottom Navigation (スマホ用) -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
@@ -771,240 +1346,5 @@
 </div>
 <!-- Error banner -->
 <div id="error-banner"></div>
-
-<script>
-// ========== GAS 接続設定 ==========
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzi3QZSIo27aD3Y8gd_Tqa60n7Px0CvuK6wNRHckeRW8_9xST1WkI8Vpyi3nLeKhX25/exec';
-
-// ========== 初期データ（ハードコード）==========
-const FALLBACK_DATA = [
-  {month:'2024/05',cost:19216,  appt:1, apptCpa:19216, meet:1, meetCpa:19216, exp:1, expCpa:19216, cont:1, contCpa:19216, yoyC:null, yoyCpa:null},
-  {month:'2024/06',cost:40513,  appt:0, apptCpa:null,  meet:0, meetCpa:null,  exp:0, expCpa:null,  cont:0, contCpa:null,  yoyC:null, yoyCpa:null},
-  {month:'2024/07',cost:54873,  appt:1, apptCpa:54873, meet:1, meetCpa:54873, exp:1, expCpa:54873, cont:1, contCpa:54873, yoyC:null, yoyCpa:null},
-  {month:'2024/08',cost:61692,  appt:2, apptCpa:30846, meet:2, meetCpa:30846, exp:2, expCpa:30846, cont:2, contCpa:30846, yoyC:null, yoyCpa:null},
-  {month:'2024/09',cost:66618,  appt:1, apptCpa:66618, meet:1, meetCpa:66618, exp:1, expCpa:66618, cont:1, contCpa:66618, yoyC:null, yoyCpa:null},
-  {month:'2024/10',cost:72559,  appt:3, apptCpa:24186, meet:3, meetCpa:24186, exp:3, expCpa:24186, cont:3, contCpa:24186, yoyC:null, yoyCpa:null},
-  {month:'2024/11',cost:108615, appt:5, apptCpa:21723, meet:5, meetCpa:21723, exp:5, expCpa:21723, cont:5, contCpa:21723, yoyC:null, yoyCpa:null},
-  {month:'2024/12',cost:92780,  appt:4, apptCpa:23195, meet:4, meetCpa:23195, exp:4, expCpa:23195, cont:4, contCpa:23195, yoyC:null, yoyCpa:null},
-  {month:'2025/01',cost:93335,  appt:5, apptCpa:18667, meet:5, meetCpa:18667, exp:5, expCpa:18667, cont:5, contCpa:18667, yoyC:null, yoyCpa:null},
-  {month:'2025/02',cost:99475,  appt:4, apptCpa:24869, meet:4, meetCpa:24869, exp:4, expCpa:24869, cont:4, contCpa:24869, yoyC:null, yoyCpa:null},
-  {month:'2025/03',cost:98409,  appt:7, apptCpa:14058, meet:7, meetCpa:14058, exp:6, expCpa:16402, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
-  {month:'2025/04',cost:64672,  appt:6, apptCpa:10779, meet:9, meetCpa:10779, exp:6, expCpa:10779, cont:null,contCpa:null, yoyC:null, yoyCpa:null},
-  {month:'2025/05',cost:85107,  appt:1, apptCpa:85107, meet:1, meetCpa:85107, exp:1, expCpa:85107, cont:1, contCpa:85107, yoyC:0,    yoyCpa:65891},
-  {month:'2025/06',cost:53098,  appt:3, apptCpa:17699, meet:3, meetCpa:17699, exp:3, expCpa:17699, cont:3, contCpa:17699, yoyC:null, yoyCpa:null},
-  {month:'2025/07',cost:81776,  appt:5, apptCpa:16355, meet:4, meetCpa:20444, exp:3, expCpa:27259, cont:2, contCpa:null,  yoyC:null, yoyCpa:27614},
-  {month:'2025/08',cost:83795,  appt:7, apptCpa:11971, meet:7, meetCpa:11971, exp:2, expCpa:41898, cont:0, contCpa:11052, yoyC:null, yoyCpa:null},
-  {month:'2025/09',cost:114052, appt:9, apptCpa:12672, meet:7, meetCpa:16293, exp:1, expCpa:114052,cont:0, contCpa:47434, yoyC:null, yoyCpa:null},
-  {month:'2025/10',cost:126404, appt:10,apptCpa:12640, meet:9, meetCpa:14045, exp:5, expCpa:25281, cont:2, contCpa:1094,  yoyC:null, yoyCpa:null},
-  {month:'2025/11',cost:120186, appt:9, apptCpa:13354, meet:9, meetCpa:13354, exp:6, expCpa:20031, cont:7, contCpa:17169, yoyC:2,    yoyCpa:-4554},
-  {month:'2025/12',cost:193622, appt:15,apptCpa:12908, meet:13,meetCpa:14894, exp:10,expCpa:19362, cont:10,contCpa:19362, yoyC:6,    yoyCpa:-3833},
-  {month:'2026/01',cost:96481,  appt:13,apptCpa:7422,  meet:11,meetCpa:8771,  exp:6, expCpa:16080, cont:6, contCpa:16080, yoyC:1,    yoyCpa:-2587},
-  {month:'2026/02',cost:144862, appt:8, apptCpa:18108, meet:5, meetCpa:28972, exp:3, expCpa:48287, cont:3, contCpa:48287, yoyC:-1,   yoyCpa:23419},
-];
-
-let ALL = [...FALLBACK_DATA];
-
-async function loadFromGAS() {
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
-    const lu = document.getElementById('last-updated');
-    if (lu) lu.textContent = 'ローカルデータ表示中';
-    return true;
-  }
-  showLoading(true);
-  try {
-    const res = await fetch(GAS_URL);
-    if (!res.ok) throw new Error('HTTPエラー: ' + res.status);
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
-    ALL = json.data;
-    showLoading(false);
-    showLastUpdated(json.updated);
-    return true;
-  } catch(err) {
-    showLoading(false);
-    showError('GAS接続エラー（ローカルデータで表示中）: ' + err.message);
-    return true;
-  }
-}
-
-function showLoading(on) {
-  const el = document.getElementById('loading-banner');
-  if (!el) return;
-  el.style.display = on ? 'flex' : 'none';
-}
-function showLastUpdated(iso) {
-  if (!iso) return;
-  const el = document.getElementById('last-updated');
-  if (!el) return;
-  const d = new Date(iso);
-  const s = d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
-  el.textContent = '最終更新: ' + s;
-}
-function showError(msg) {
-  const el = document.getElementById('error-banner');
-  if (!el) return;
-  el.textContent = '⚠️ ' + msg;
-  el.style.display = 'block';
-  setTimeout(() => { if(el) el.style.display='none'; }, 6000);
-}
-
-const fmt = v => v==null ? '—' : '¥'+v.toLocaleString();
-const fmtN = v => v==null ? '—' : v+'件';
-const avg = arr => { const v=arr.filter(x=>x!=null); return v.length ? Math.round(v.reduce((a,b)=>a+b,0)/v.length) : null; };
-const cc = v => v==null?'muted':v<15000?'cpa-low':v<30000?'cpa-mid':'cpa-high';
-
-let charts = {};
-let activePeriod='2025', activeMonth=null;
-let activePeriodCost='2025', activePeriodCv='2025';
-
-const filterData = (period) => period==='all' ? ALL : ALL.filter(d=>d.month.startsWith(period));
-const getFiltered = () => {
-  let d = filterData(activePeriod);
-  if (activeMonth) d = d.filter(r=>r.month===activeMonth);
-  return d;
-};
-
-const tipBase = (label) => ({
-  backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#d1d5db',cornerRadius:8,callbacks:{label}
-});
-const scaleXY = (yFmt) => ({
-  x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},
-  y:{ticks:{color:'#9ca3af',font:{size:10},callback:yFmt},grid:{color:'#f3f4f6'}}
-});
-
-function mkChart(id,type,labels,datasets,opts={}) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(canvas,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,...opts}});
-}
-
-// ========== PAGE NAVIGATION ==========
-function showPage(page, el, title) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-
-  if (el) el.classList.add('active');
-
-  const bnav = document.getElementById('bnav-'+page);
-  if (bnav) bnav.classList.add('active');
-
-  const titles = {dashboard:'ダッシュボード',cost:'コスト分析',cv:'CV詳細',report:'月次レポート',settings:'設定',weekly:'週次レポート',biweekly:'改善プラン'};
-  const mt = document.getElementById('mobilePageTitle');
-  if (mt) mt.textContent = title || titles[page] || '';
-
-  closeSidebar();
-
-  const main = document.querySelector('.main');
-  if (main) main.scrollTop = 0;
-
-  if (page==='dashboard') render();
-  if (page==='cost') renderCost();
-  if (page==='cv') renderCv();
-  if (page==='report') renderReport();
-  if (page==='weekly') renderWeekly();
-  if (page==='biweekly') renderBiweekly();
-}
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-
-// ========== DASHBOARD ==========
-function render() {
-  const data = getFiltered();
-  document.getElementById('totalCost').textContent = '¥'+data.reduce((s,d)=>s+d.cost,0).toLocaleString();
-  const last = [...data].reverse().find(d=>d.cost);
-  if(last){
-    document.getElementById('latestCost').textContent=fmt(last.cost);
-    document.getElementById('latestMonth').textContent=last.month;
-    document.getElementById('latestMeetCpa').textContent=fmt(last.meetCpa);
-    document.getElementById('latestMeetN').textContent='面談数: '+fmtN(last.meet);
-  }
-  document.getElementById('totalMeet').textContent=data.reduce((s,d)=>s+(d.meet||0),0)+'件';
-  document.getElementById('totalExp').textContent=data.reduce((s,d)=>s+(d.exp||0),0)+'件';
-  document.getElementById('totalCont').textContent=data.reduce((s,d)=>s+(d.cont||0),0)+'件';
-  const best=data.filter(d=>d.contCpa).reduce((b,d)=>(!b||d.contCpa<b.contCpa)?d:b,null);
-  if(best){document.getElementById('bestCpa').textContent=fmt(best.contCpa);document.getElementById('bestCpaMonth').textContent=best.month;}
-  document.getElementById('avgApptCpa').textContent=fmt(avg(data.map(d=>d.apptCpa)));
-  document.getElementById('avgExpCpa').textContent=fmt(avg(data.map(d=>d.expCpa)));
-  document.getElementById('avgContCpa').textContent=fmt(avg(data.map(d=>d.contCpa)));
-
-  const labels=data.map(d=>d.month.slice(5));
-  const ks=scaleXY(v=>'¥'+(v/1000).toFixed(0)+'k');
-  mkChart('costChart','bar',labels,[{data:data.map(d=>d.cost),backgroundColor:data.map(d=>d.cost>150000?'rgba(239,68,68,0.7)':'rgba(124,58,237,0.55)'),borderColor:data.map(d=>d.cost>150000?'#ef4444':'#7c3aed'),borderWidth:1.5,borderRadius:6}],{plugins:{legend:{display:false},tooltip:tipBase(c=>'¥'+c.raw.toLocaleString())},scales:ks});
-  mkChart('cvChart','line',labels,[
-    {label:'面談',data:data.map(d=>d.meet),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.08)',tension:0.4,pointRadius:3,fill:true},
-    {label:'体験',data:data.map(d=>d.exp), borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.08)', tension:0.4,pointRadius:3,fill:false},
-    {label:'契約',data:data.map(d=>d.cont),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',tension:0.4,pointRadius:3,fill:false},
-  ],{plugins:{legend:{display:false},tooltip:tipBase(c=>c.dataset.label+': '+c.raw+'件')},scales:{x:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'}}}});
-
-  const mkCpa=(id,key,color)=>mkChart(id,'line',labels,[{data:data.map(d=>d[key]),borderColor:color,backgroundColor:color.replace(')',',0.08)').replace('rgb','rgba'),tension:0.4,pointRadius:2,fill:true,spanGaps:false}],{plugins:{legend:{display:false},tooltip:tipBase(c=>fmt(c.raw))},scales:{x:{ticks:{color:'#9ca3af',font:{size:9}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:9},callback:v=>'¥'+(v/1000).toFixed(0)+'k'},grid:{color:'#f3f4f6'}}}});
-  mkCpa('cpa1','meetCpa','rgb(124,58,237)');
-  mkCpa('cpa2','expCpa','rgb(6,182,212)');
-  mkCpa('cpa3','contCpa','rgb(16,185,129)');
-
-  const tbody=document.getElementById('tableBody');
-  tbody.innerHTML='';
-  [...data].reverse().forEach(d=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${d.month}</td><td class="cost">${fmt(d.cost)}</td><td>${fmtN(d.appt)}</td><td class="${cc(d.apptCpa)}">${fmt(d.apptCpa)}</td><td>${fmtN(d.meet)}</td><td class="${cc(d.meetCpa)}">${fmt(d.meetCpa)}</td><td>${fmtN(d.exp)}</td><td class="${cc(d.expCpa)}">${fmt(d.expCpa)}</td><td>${fmtN(d.cont)}</td><td class="${cc(d.contCpa)}">${fmt(d.contCpa)}</td><td class="${d.yoyC==null?'muted':d.yoyC>=0?'pos':'neg'}">${d.yoyC==null?'—':(d.yoyC>=0?'+':'')+d.yoyC+'件'}</td><td class="${d.yoyCpa==null?'muted':d.yoyCpa<=0?'pos':'neg'}">${d.yoyCpa==null?'—':(d.yoyCpa>=0?'+':'')+fmt(d.yoyCpa).replace('¥','')}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function buildChips(period) {
-  const c=document.getElementById('monthChips'); c.innerHTML='';
-  const all=document.createElement('div');
-  all.className='chip chip-all'; all.textContent='すべて';
-  all.onclick=()=>{activeMonth=null;render();buildChips(period);};
-  c.appendChild(all);
-
-  const months=period==='all'?ALL.map(d=>d.month):ALL.filter(d=>d.month.startsWith(period)).map(d=>d.month);
-  months.forEach(m=>{
-    const chip=document.createElement('div');
-    chip.className='chip chip-month'+(activeMonth===m?' active':'');
-    chip.textContent=m;
-    chip.onclick=()=>{activeMonth=m;document.querySelectorAll('.chip-month').forEach(c=>c.classList.remove('active'));chip.classList.add('active');render();};
-    c.appendChild(chip);
-  });
-}
-
-function filterPeriod(p,el) {
-  activePeriod=p; activeMonth=null;
-  document.querySelectorAll('#page-dashboard .period-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  buildChips(p); render();
-}
-
-// ========== COST / CV / REPORT / SETTINGS / WEEKLY / BIWEEKLY ==========
-/* ここ以降はあなたの元コードをそのまま使用（上で示した原因に関係しないため） */
-${"// （省略せず全文を貼りたい場合は、続きもこのまま貼れますが、文字数が非常に長くなるので必要なら続きも送ります）"}
-</script>
-
-<script>
-// ▼元コードの続き（renderCost/renderCv/renderReport/...）も必要ならここにそのまま貼り付けてOKです。
-// 今回のエラー原因は「DOMが未生成の段階で showLoading が走る」なので、この位置に script を置くのがポイントです。
-</script>
-
-<script>
-// ========== INIT ==========
-async function init() {
-  const ok = await loadFromGAS();
-  if (ok) {
-    buildChips('2025');
-    render();
-  }
-}
-document.addEventListener('DOMContentLoaded', init);
-</script>
-
 </body>
 </html>
