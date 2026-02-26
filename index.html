@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>広告運用 ダッシュボード</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>  
+<script src="https://script.google.com/macros/s/AKfycbxEZsGdoMZfelRAxSUYXJL6H0Lo53qZ5Qi0Sx_FG_o6GHebCeFTps_Oo3nNPnc99c5h/exec"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -825,13 +826,10 @@ async function loadFromGAS() {
   }
 }
 
-  function showLoading(on) {
-  const el = document.getElementById('loading-banner');
-  if (el) {
-    el.style.display = on ? 'flex' : 'none';
-  }
+function showLoading(on) {
+  document.getElementById('loading-banner').style.display = on ? 'flex' : 'none';
 }
-  function showLastUpdated(iso) {
+function showLastUpdated(iso) {
   if (!iso) return;
   const d = new Date(iso);
   const s = d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
